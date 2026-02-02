@@ -992,8 +992,8 @@ if st.session_state.data is None:
         try:
             # Load the sample CSV automatically
             sample_df = pd.read_csv(sample_file_path)
-            st.session_state.data = {'student_360_view': sample_df}
-            st.session_state.uploaded_file_info = {'student_360_view': 'Student_360_View.csv (Auto-loaded)'}
+            st.session_state.data = {'student_360': sample_df}
+            st.session_state.uploaded_file_info = {'student_360': 'Student_360_View.csv (Auto-loaded)'}
         except Exception as e:
             # If sample loading fails, continue to file upload screen
             pass
@@ -1254,8 +1254,8 @@ if st.session_state.data is None:
                         sample_df = pd.read_csv(sample_file_path)
 
                         # Store in session state using the same structure as uploaded files
-                        st.session_state.data = {'student_360_view': sample_df}
-                        st.session_state.uploaded_file_info = {'student_360_view': 'Student_360_View.csv'}
+                        st.session_state.data = {'student_360': sample_df}
+                        st.session_state.uploaded_file_info = {'student_360': 'Student_360_View.csv'}
 
                         st.success(f"✅ Successfully loaded sample data with {len(sample_df):,} records!")
                         st.info("🎯 The dashboard is ready! Refresh the page to start analysis.")

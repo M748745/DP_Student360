@@ -985,7 +985,20 @@ if 'data' not in st.session_state:
 if 'uploaded_file_info' not in st.session_state:
     st.session_state.uploaded_file_info = {}
 
-# No auto-load - users must upload CSV files manually
+# Auto-load sample data from GitHub repository if available
+if st.session_state.data is None:
+    # Check if CSV file exists in the repository (same directory as the app)
+    sample_file_path = Path("Student_360_View.csv")
+    if sample_file_path.exists():
+        try:
+            # Load the CSV automatically from GitHub repository
+            with st.spinner("🚀 Loading data from repository..."):
+                sample_df = pd.read_csv(sample_file_path)
+                st.session_state.data = {'student_360': sample_df}
+                st.session_state.uploaded_file_info = {'student_360': f'Student_360_View.csv ({len(sample_df):,} records from repository)'}
+        except Exception as e:
+            # If loading fails, continue to file upload screen
+            pass
 
 def load_uploaded_data(uploaded_files):
     """Process uploaded CSV files and map them to data dictionary"""

@@ -985,18 +985,7 @@ if 'data' not in st.session_state:
 if 'uploaded_file_info' not in st.session_state:
     st.session_state.uploaded_file_info = {}
 
-# Auto-load sample data if available and no data is loaded yet
-if st.session_state.data is None:
-    sample_file_path = Path("Student_360_View.csv")
-    if sample_file_path.exists():
-        try:
-            # Load the sample CSV automatically
-            sample_df = pd.read_csv(sample_file_path)
-            st.session_state.data = {'student_360': sample_df}
-            st.session_state.uploaded_file_info = {'student_360': 'Student_360_View.csv (Auto-loaded)'}
-        except Exception as e:
-            # If sample loading fails, continue to file upload screen
-            pass
+# No auto-load - users must upload CSV files manually
 
 def load_uploaded_data(uploaded_files):
     """Process uploaded CSV files and map them to data dictionary"""
@@ -1231,42 +1220,7 @@ if st.session_state.data is None:
         """)
 
     st.markdown("---")
-
-    # Sample Data Loading Option
-    st.markdown("### 🎯 Quick Start Options")
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.markdown("#### 📁 Upload Your Data")
-        st.info("💡 **Tip:** You can upload files from all layers at once. Select multiple files to upload them together.")
-
-    with col2:
-        st.markdown("#### 🚀 Try Sample Data")
-        st.info("Load pre-populated sample dataset to explore the dashboard features instantly!")
-
-        if st.button("📊 Load Sample Data", type="primary", use_container_width=True):
-            # Check if sample data file exists
-            sample_file_path = Path("Student_360_View.csv")
-            if sample_file_path.exists():
-                with st.spinner("📊 Loading sample data..."):
-                    try:
-                        # Load the sample CSV
-                        sample_df = pd.read_csv(sample_file_path)
-
-                        # Store in session state using the same structure as uploaded files
-                        st.session_state.data = {'student_360': sample_df}
-                        st.session_state.uploaded_file_info = {'student_360': 'Student_360_View.csv'}
-
-                        st.success(f"✅ Successfully loaded sample data with {len(sample_df):,} records!")
-                        st.info("🎯 The dashboard is ready! Refresh the page to start analysis.")
-
-                        # Auto-start analysis
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"❌ Error loading sample data: {str(e)}")
-            else:
-                st.warning("⚠️ Sample data file not found. Please upload your own CSV files below.")
-
+    st.info("💡 **Tip:** You can upload files from all layers at once. Select multiple files to upload them together.")
     st.markdown("---")
 
     uploaded_files = st.file_uploader(

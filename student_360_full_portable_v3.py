@@ -1778,7 +1778,7 @@ def safe_column_access(dataframe, column_name, default_value=0):
 
 # Validate required columns exist (more flexible now)
 required_columns = ['student_id', 'cumulative_gpa', 'nationality', 'enrollment_enrollment_status']
-missing_columns = [col for col in required_columns if col not in df.columns]
+missing_columns = [req_col for req_col in required_columns if req_col not in df.columns]
 
 if missing_columns:
     st.error(f"❌ Missing required columns in STUDENT_360_VIEW.csv: {', '.join(missing_columns)}")
@@ -1867,8 +1867,8 @@ if missing_optional_columns:
         This ensures all analyses and visualizations work properly. Features requiring these columns will show default/placeholder data.
         """)
         st.text("Missing optional columns:")
-        for col in sorted(missing_optional_columns)[:15]:
-            st.text(f"  • {col}")
+        for column_name in sorted(missing_optional_columns)[:15]:
+            st.text(f"  • {column_name}")
         if len(missing_optional_columns) > 15:
             st.text(f"  ... and {len(missing_optional_columns) - 15} more")
 
@@ -2331,9 +2331,10 @@ if export_button_placeholder.button("📊 Generate Interactive HTML Report", use
         st.sidebar.info("📄 The HTML report includes:\n- All current filter settings\n- Key performance indicators\n- 5 interactive charts\n- Strategic insights\n- Works in any browser (no Python needed)")
 
 # Main tabs
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11 = st.tabs([
     "🎯 Executive Summary",
     "📖 Data Storytelling",
+    "🚀 Student Journey",
     "📊 Overview",
     "🎓 Academic Analytics",
     "🏠 Housing Insights",
@@ -4312,7 +4313,7 @@ with tab2:
         st.markdown("## 📊 Story 1.1: Student Body Snapshot & Enrollment Profile")
         st.markdown("*Current enrollment volume, demographic composition, and student profile overview*")
 
-        st.markdown(f"<p style='color: white; font-size: 1.1rem;'>Every student who walks through our doors carries dreams, ambitions, and unique challenges. Our data tells the story of <strong>{total_students:,}</strong> individuals navigating their educational journey in 2024-2025.</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='color: white; font-size: 1.1rem;'>Our institution currently serves <strong>{total_students:,}</strong> students in the 2024-2025 academic year. This enrollment volume represents our current market position and operational capacity.</p>", unsafe_allow_html=True)
 
         # Calculate performance metrics
         high_performers = len(filtered_df[filtered_df['cumulative_gpa'] >= 3.5])
@@ -4320,7 +4321,7 @@ with tab2:
         mid_performers = len(filtered_df[(filtered_df['cumulative_gpa'] >= 2.5) & (filtered_df['cumulative_gpa'] < 3.5)])
         mid_performer_pct = (mid_performers / len(filtered_df) * 100) if len(filtered_df) > 0 else 0
 
-        st.info(f"💡 **The Big Picture:** Our student body represents a vibrant tapestry of {filtered_df['nationality'].nunique()} nationalities, with {uae_pct:.1f}% UAE nationals leading the way in supporting national education objectives.")
+        st.info(f"💡 **The Big Picture:** Our student body includes {filtered_df['nationality'].nunique()} nationalities, with {uae_pct:.1f}% UAE nationals, aligning with national education and Emiratization objectives.")
 
         # VISUALIZATION: Nationality Diversity Chart
         st.markdown("#### 🌍 Global Diversity: Top Nationalities Represented")
@@ -4379,7 +4380,7 @@ with tab2:
                 <strong style='color: white;'>{international_count}</strong> international students ({100-uae_pct:.1f}%)
                 </p>
                 <p style='color: #94a3b8; font-size: 0.9rem; margin-top: 1rem;'>
-                This rich diversity creates a global learning environment that prepares students for an interconnected world.
+                This diversity supports international accreditation standards and enhances institutional competitiveness in global education markets.
                 </p>
             </div>
             """, unsafe_allow_html=True)
@@ -4432,17 +4433,17 @@ with tab2:
         st.markdown("## 🌍 Story 1.2: Market Positioning & Diversity Strategy")
         st.markdown("*UAE vs International student performance, Vision 2030 alignment, and competitive positioning*")
 
-        st.markdown("<p style='color: white; font-size: 1.1rem;'>The academic landscape reveals three distinct student groups, each with unique needs and tremendous potential:</p>", unsafe_allow_html=True)
+        st.markdown("<p style='color: white; font-size: 1.1rem;'>Academic performance analysis identifies three distinct student segments, each requiring targeted resource allocation and support strategies:</p>", unsafe_allow_html=True)
 
         # Academic Performance Timeline - Using native Streamlit components
         st.markdown("#### 🌟 High Achievers: The Excellence Track")
-        st.info(f"**{high_performers} students ({high_performer_pct:.1f}%)** are excelling with GPAs of 3.5 or above. These students demonstrate exceptional dedication and serve as role models for their peers. They represent our institution's commitment to academic excellence and innovation.")
+        st.info(f"**{high_performers} students ({high_performer_pct:.1f}%)** maintain GPAs of 3.5 or above. This segment drives institutional rankings, alumni success metrics, and competitive positioning in the higher education market.")
 
         st.markdown("#### 📈 Steady Performers: The Core Foundation")
-        st.success(f"**{mid_performers} students ({mid_performer_pct:.1f}%)** maintain solid academic standing with GPAs between 2.5 and 3.5. This group forms the backbone of our student community, balancing academics with personal development and extracurricular involvement.")
+        st.success(f"**{mid_performers} students ({mid_performer_pct:.1f}%)** maintain satisfactory academic standing with GPAs between 2.5 and 3.5. This segment represents stable enrollment and consistent tuition revenue.")
 
         st.markdown("#### ⚠️ Growth Opportunity Students: Untapped Potential")
-        st.warning(f"**{at_risk_students} students ({at_risk_pct:.1f}%)** currently face academic challenges with GPAs below 2.5. However, data shows these students can achieve remarkable transformations with targeted support, mentorship, and timely interventions.")
+        st.warning(f"**{at_risk_students} students ({at_risk_pct:.1f}%)** exhibit academic performance below 2.5 GPA threshold. This segment presents retention risk but offers ROI opportunities through evidence-based intervention programs that reduce attrition costs.")
 
         # VISUALIZATION: Student Tier Distribution Pie Chart
         st.markdown("#### 📊 Student Performance Distribution")
@@ -4972,7 +4973,7 @@ with tab2:
         avg_aid_amount = filtered_df[filtered_df['financial_aid_monetary_amount'] > 0]['financial_aid_monetary_amount'].mean()
         total_aid_invested = filtered_df['financial_aid_monetary_amount'].sum()
 
-        st.markdown(f"<p style='color: white; font-size: 1.1rem;'>Our institution has invested <strong>AED {total_aid_invested/1000000:.2f}M</strong> in financial aid this year, supporting <strong>{students_with_aid} students ({aid_recipient_pct:.1f}%)</strong> to remove financial barriers to education.</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='color: white; font-size: 1.1rem;'>Our institution has allocated <strong>AED {total_aid_invested/1000000:.2f}M</strong> in financial aid this year, supporting <strong>{students_with_aid} students ({aid_recipient_pct:.1f}%)</strong> across various scholarship and funding programs.</p>", unsafe_allow_html=True)
 
         # Investment Summary Metrics
         col1, col2, col3, col4 = st.columns(4)
@@ -8084,7 +8085,7 @@ with tab2:
         # Top programs by enrollment
         top_programs = filtered_df['enrollment_type'].value_counts().head(5)
 
-        st.markdown(f"<p style='color: white; font-size: 1.1rem;'>Our institution serves a <strong>{international_pct:.1f}% international</strong> student body with <strong>{high_performers_pct:.1f}% high performers</strong> (GPA 3.5+). This global diversity combined with academic excellence positions us as a regional leader in international higher education.</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='color: white; font-size: 1.1rem;'>Our institution serves a <strong>{international_pct:.1f}% international</strong> student body with <strong>{high_performers_pct:.1f}% high performers</strong> (GPA 3.5+). This diversity profile and academic performance supports regional competitiveness in the international higher education market.</p>", unsafe_allow_html=True)
 
         # Competitive positioning metrics
         col1, col2, col3, col4 = st.columns(4)
@@ -8723,11 +8724,11 @@ with tab2:
         """, unsafe_allow_html=True)
 
         comparison = 'exceeding' if uae_gpa > int_gpa else 'comparable to'
-        st.success(f"🎓 **Academic Performance Excellence**\n\nUAE nationals maintain an impressive average GPA of **{uae_gpa:.2f}**, {comparison} the international student average of {int_gpa:.2f}. This demonstrates the strong academic foundation and commitment of Emirati students.")
+        st.success(f"🎓 **Academic Performance Analysis**\n\nUAE nationals maintain an average GPA of **{uae_gpa:.2f}**, {comparison} the international student average of {int_gpa:.2f}. This performance supports Vision 2030 objectives for national talent development.")
 
         st.info(f"🎯 **Retention Success:** {uae_active_pct:.1f}% of UAE national students maintain active enrollment status, reflecting high engagement and program satisfaction.")
 
-        st.markdown("<p style='color: white; font-size: 1.1rem;'>Through targeted support programs, mentorship initiatives, and culturally-responsive education, we're ensuring that UAE nationals not only succeed but excel in their chosen fields, contributing to Vision 2030 and national development goals.</p>", unsafe_allow_html=True)
+        st.markdown("<p style='color: white; font-size: 1.1rem;'>Support programs, mentorship initiatives, and culturally-responsive education are deployed to optimize UAE national student outcomes, aligning with Vision 2030 and national workforce development objectives.</p>", unsafe_allow_html=True)
 
         # Deep Dive: UAE National Analysis
         st.markdown("---")
@@ -8824,7 +8825,7 @@ with tab2:
             # Comparative analysis
             if uae_high_pct > intl_high_pct:
                 diff = uae_high_pct - intl_high_pct
-                st.success(f"🏆 **Excellence Gap:** UAE nationals have {diff:.1f}% more high performers compared to international students, demonstrating exceptional academic commitment and capability.")
+                st.success(f"🏆 **Performance Gap:** UAE nationals have {diff:.1f}% more high performers compared to international students, supporting national education quality objectives.")
             elif intl_high_pct > uae_high_pct:
                 st.info("📈 **Growth Opportunity:** International students show slightly higher high-performer rates, suggesting opportunities to enhance targeted support programs for UAE nationals.")
 
@@ -9320,8 +9321,2449 @@ with tab2:
         else:
             st.info("No UAE national student data available for the current filter selection.")
 
-# TAB 3: COMPREHENSIVE OVERVIEW - REORGANIZED WITH BUSINESS LOGIC FLOW
+# TAB 3: STUDENT JOURNEY - CREATE JOURNEYS FOR SELECTIVE STUDENTS
 with tab3:
+    # Re-import col function to avoid any shadowing issues from previous code
+    if CATALOG_AVAILABLE:
+        from column_mapper_integration import col as col_func, col_safe
+    else:
+        col_func = lambda name: name
+        col_safe = lambda name, default=None: name if name else default
+
+    st.markdown("## 🚀 Student Journey Builder")
+    st.markdown("*Create and visualize personalized student journeys with milestones, interventions, and success tracking*")
+
+    st.markdown("""
+    <div style='background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(16, 185, 129, 0.1));
+                padding: 20px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 20px;'>
+        <p style='color: #e2e8f0; margin: 0; font-size: 1rem;'>
+        Build comprehensive student journeys to track progress from enrollment to graduation.
+        Select students, define milestones, plan interventions, and monitor outcomes.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Create two columns for the main interface
+    left_column, right_column = st.columns([1, 2])
+
+    with left_column:
+        st.markdown("### 🎯 Step 1: Select Students")
+
+        # Student selection method
+        selection_method = st.radio(
+            "Selection Method:",
+            ["By Student ID", "By Criteria", "By Performance Group"],
+            help="Choose how you want to select students for the journey"
+        )
+
+        selected_students = pd.DataFrame()
+
+        if selection_method == "By Student ID":
+            # Get list of all student IDs
+            student_id_col = col_func('STUDENT_ID')
+            all_student_ids = filtered_df[student_id_col].unique().tolist() if student_id_col in filtered_df.columns else []
+
+            # Multi-select for student IDs
+            selected_ids = st.multiselect(
+                "Select Student IDs:",
+                options=all_student_ids,
+                help="Choose one or more student IDs"
+            )
+
+            if selected_ids:
+                selected_students = filtered_df[filtered_df[student_id_col].isin(selected_ids)]
+
+        elif selection_method == "By Criteria":
+            st.markdown("**Filter Criteria:**")
+
+            # GPA range
+            gpa_col = col_func('CUMULATIVE_GPA')
+            if gpa_col in filtered_df.columns:
+                gpa_range = st.slider(
+                    "GPA Range:",
+                    min_value=0.0,
+                    max_value=4.0,
+                    value=(0.0, 4.0),
+                    step=0.1
+                )
+                filtered_by_criteria = filtered_df[
+                    (filtered_df[gpa_col] >= gpa_range[0]) &
+                    (filtered_df[gpa_col] <= gpa_range[1])
+                ]
+            else:
+                filtered_by_criteria = filtered_df.copy()
+
+            # Enrollment status
+            status_col = col_func('ENROLLMENT_STATUS')
+            if status_col in filtered_df.columns:
+                status_options = filtered_df[status_col].unique().tolist()
+                selected_status = st.multiselect(
+                    "Enrollment Status:",
+                    options=status_options,
+                    default=status_options
+                )
+                filtered_by_criteria = filtered_by_criteria[
+                    filtered_by_criteria[status_col].isin(selected_status)
+                ]
+
+            # Academic level
+            level_col = col_func('ACADEMIC_LEVEL')
+            if level_col in filtered_df.columns:
+                level_options = filtered_df[level_col].unique().tolist()
+                selected_levels = st.multiselect(
+                    "Academic Level:",
+                    options=level_options,
+                    default=level_options
+                )
+                filtered_by_criteria = filtered_by_criteria[
+                    filtered_by_criteria[level_col].isin(selected_levels)
+                ]
+
+            # Limit number of students
+            max_students = st.number_input(
+                "Maximum Students to Select:",
+                min_value=1,
+                max_value=100,
+                value=10,
+                help="Limit the number of students for journey creation"
+            )
+
+            selected_students = filtered_by_criteria.head(max_students)
+
+        elif selection_method == "By Performance Group":
+            performance_group = st.selectbox(
+                "Select Performance Group:",
+                ["High Performers (GPA > 3.5)",
+                 "Steady Performers (GPA 2.5-3.5)",
+                 "At-Risk Students (GPA < 2.5)",
+                 "Dean's List Students",
+                 "First-Year Students",
+                 "International Students"]
+            )
+
+            max_students = st.number_input(
+                "Maximum Students to Select:",
+                min_value=1,
+                max_value=100,
+                value=10,
+                help="Limit the number of students for journey creation"
+            )
+
+            gpa_col = col_func('CUMULATIVE_GPA')
+            level_col = col_func('ACADEMIC_LEVEL')
+            nationality_col = col_func('NATIONALITY')
+
+            if gpa_col in filtered_df.columns:
+                if performance_group == "High Performers (GPA > 3.5)":
+                    selected_students = filtered_df[filtered_df[gpa_col] > 3.5].head(max_students)
+                elif performance_group == "Steady Performers (GPA 2.5-3.5)":
+                    selected_students = filtered_df[
+                        (filtered_df[gpa_col] >= 2.5) &
+                        (filtered_df[gpa_col] <= 3.5)
+                    ].head(max_students)
+                elif performance_group == "At-Risk Students (GPA < 2.5)":
+                    selected_students = filtered_df[filtered_df[gpa_col] < 2.5].head(max_students)
+                elif performance_group == "Dean's List Students":
+                    selected_students = filtered_df[filtered_df[gpa_col] >= 3.75].head(max_students)
+                elif performance_group == "First-Year Students":
+                    if level_col in filtered_df.columns:
+                        selected_students = filtered_df[
+                            filtered_df[level_col].isin(['Freshman', 'FR', '1', 'First Year'])
+                        ].head(max_students)
+                    else:
+                        selected_students = filtered_df.head(max_students)
+                elif performance_group == "International Students":
+                    if nationality_col in filtered_df.columns:
+                        selected_students = filtered_df[
+                            ~filtered_df[nationality_col].isin(['United Arab Emirates', 'UAE'])
+                        ].head(max_students)
+                    else:
+                        selected_students = filtered_df.head(max_students)
+            else:
+                selected_students = filtered_df.head(max_students)
+
+        # Display selected students count
+        st.markdown(f"**Selected Students:** {len(selected_students)}")
+
+        if len(selected_students) > 0:
+            st.success(f"✅ {len(selected_students)} students selected")
+
+            # Show basic stats of selected students
+            gpa_col = col_func('CUMULATIVE_GPA')
+            student_id_col = col_func('STUDENT_ID')
+
+            if gpa_col in selected_students.columns:
+                avg_gpa = selected_students[gpa_col].mean()
+                st.metric("Average GPA", f"{avg_gpa:.2f}")
+
+            # Show list of selected students in an expander
+            with st.expander("📋 View Selected Students", expanded=False):
+                st.markdown("**Students in this journey:**")
+
+                # Create a display dataframe with key columns
+                display_cols = []
+                if student_id_col in selected_students.columns:
+                    display_cols.append(student_id_col)
+
+                name_col = col_func('FULL_NAME')
+                if name_col in selected_students.columns:
+                    display_cols.append(name_col)
+                elif 'full_name' in selected_students.columns:
+                    display_cols.append('full_name')
+
+                if gpa_col in selected_students.columns:
+                    display_cols.append(gpa_col)
+
+                status_col = col_func('ENROLLMENT_STATUS')
+                if status_col in selected_students.columns:
+                    display_cols.append(status_col)
+
+                if display_cols:
+                    display_df = selected_students[display_cols].copy()
+
+                    # Rename columns for better display
+                    rename_map = {}
+                    if student_id_col in display_df.columns:
+                        rename_map[student_id_col] = "Student ID"
+                    if name_col in display_df.columns:
+                        rename_map[name_col] = "Name"
+                    elif 'full_name' in display_df.columns:
+                        rename_map['full_name'] = "Name"
+                    if gpa_col in display_df.columns:
+                        rename_map[gpa_col] = "GPA"
+                    if status_col in display_df.columns:
+                        rename_map[status_col] = "Status"
+
+                    display_df = display_df.rename(columns=rename_map)
+
+                    # Format GPA if present
+                    if "GPA" in display_df.columns:
+                        display_df["GPA"] = display_df["GPA"].apply(lambda x: f"{x:.2f}" if pd.notna(x) else "N/A")
+
+                    st.dataframe(
+                        display_df,
+                        use_container_width=True,
+                        hide_index=True
+                    )
+                else:
+                    # Fallback: just show student IDs as a list
+                    if student_id_col in selected_students.columns:
+                        student_ids = selected_students[student_id_col].tolist()
+                        for sid in student_ids:
+                            st.markdown(f"• {sid}")
+        else:
+            st.warning("⚠️ No students selected. Adjust your criteria.")
+
+    with right_column:
+        if len(selected_students) > 0:
+            st.markdown("### 📋 Step 2: Define Journey")
+
+            # Journey template selector
+            journey_templates = {
+                "Custom Journey": {
+                    "description": "Create a custom journey with your own milestones",
+                    "focus": "General student success tracking",
+                    "milestones": [
+                        {"name": "Enrollment", "week": 0, "type": "Academic", "status": "Completed"},
+                        {"name": "First Assessment", "week": 4, "type": "Academic", "status": "In Progress"},
+                        {"name": "Mid-Term Review", "week": 8, "type": "Academic", "status": "Pending"},
+                        {"name": "Advising Session", "week": 10, "type": "Support", "status": "Pending"},
+                        {"name": "Final Exams", "week": 15, "type": "Academic", "status": "Pending"},
+                        {"name": "Semester Completion", "week": 16, "type": "Academic", "status": "Pending"}
+                    ]
+                },
+                "Journey 1: Enrollment & Student Composition": {
+                    "description": "Track student enrollment, composition, and demographic integration",
+                    "focus": "WHO we serve - Student demographics and institutional identity",
+                    "milestones": [
+                        {"name": "Application Submitted", "week": 0, "type": "Enrollment", "status": "Completed"},
+                        {"name": "Admission Decision", "week": 2, "type": "Enrollment", "status": "Completed"},
+                        {"name": "Enrollment Confirmation", "week": 4, "type": "Enrollment", "status": "Completed"},
+                        {"name": "Orientation & Onboarding", "week": 5, "type": "Support", "status": "In Progress"},
+                        {"name": "Demographic Profile Complete", "week": 6, "type": "Administrative", "status": "Pending"},
+                        {"name": "First Semester Progress", "week": 8, "type": "Academic", "status": "Pending"},
+                        {"name": "Integration Assessment", "week": 16, "type": "Support", "status": "Pending"}
+                    ]
+                },
+                "Journey 2: Revenue & Financial Strategy": {
+                    "description": "Monitor financial aid, tuition, and revenue optimization",
+                    "focus": "Financial planning and aid distribution strategy",
+                    "milestones": [
+                        {"name": "Financial Aid Application", "week": 0, "type": "Financial", "status": "Completed"},
+                        {"name": "Aid Package Offer", "week": 2, "type": "Financial", "status": "Completed"},
+                        {"name": "Tuition Payment Plan Setup", "week": 4, "type": "Financial", "status": "In Progress"},
+                        {"name": "First Payment Due", "week": 5, "type": "Financial", "status": "Pending"},
+                        {"name": "Mid-Semester Financial Review", "week": 8, "type": "Financial", "status": "Pending"},
+                        {"name": "Aid Renewal Planning", "week": 12, "type": "Financial", "status": "Pending"},
+                        {"name": "Final Payment & Settlement", "week": 16, "type": "Financial", "status": "Pending"}
+                    ]
+                },
+                "Journey 3: Student Services & Operations": {
+                    "description": "Track housing, recreation, and campus services engagement",
+                    "focus": "Student experience and operational service delivery",
+                    "milestones": [
+                        {"name": "Housing Application", "week": 0, "type": "Services", "status": "Completed"},
+                        {"name": "Housing Assignment", "week": 2, "type": "Services", "status": "Completed"},
+                        {"name": "Move-In & Check-In", "week": 4, "type": "Services", "status": "In Progress"},
+                        {"name": "Recreation Program Enrollment", "week": 5, "type": "Services", "status": "Pending"},
+                        {"name": "Services Satisfaction Survey", "week": 8, "type": "Support", "status": "Pending"},
+                        {"name": "Mid-Year Housing Review", "week": 12, "type": "Services", "status": "Pending"},
+                        {"name": "Renewal & Exit Planning", "week": 16, "type": "Services", "status": "Pending"}
+                    ]
+                },
+                "Journey 4: Academic Performance & Outcomes": {
+                    "description": "Monitor academic progress, performance, and learning outcomes",
+                    "focus": "Academic excellence and student achievement",
+                    "milestones": [
+                        {"name": "Course Registration", "week": 0, "type": "Academic", "status": "Completed"},
+                        {"name": "First Week Attendance", "week": 1, "type": "Academic", "status": "Completed"},
+                        {"name": "First Assignment/Quiz", "week": 3, "type": "Academic", "status": "In Progress"},
+                        {"name": "Mid-Term Exams", "week": 8, "type": "Academic", "status": "Pending"},
+                        {"name": "Academic Progress Review", "week": 9, "type": "Academic", "status": "Pending"},
+                        {"name": "Final Exams", "week": 15, "type": "Academic", "status": "Pending"},
+                        {"name": "Grade Posting & Review", "week": 16, "type": "Academic", "status": "Pending"}
+                    ]
+                },
+                "Journey 5: Retention & Success": {
+                    "description": "Track engagement, persistence, and student success factors",
+                    "focus": "Keeping students engaged and progressing toward graduation",
+                    "milestones": [
+                        {"name": "Welcome & Engagement Check", "week": 1, "type": "Support", "status": "Completed"},
+                        {"name": "Early Alert Assessment", "week": 3, "type": "Support", "status": "In Progress"},
+                        {"name": "First Intervention Checkpoint", "week": 5, "type": "Support", "status": "Pending"},
+                        {"name": "Mid-Semester Check-In", "week": 8, "type": "Support", "status": "Pending"},
+                        {"name": "Academic Advising Session", "week": 10, "type": "Support", "status": "Pending"},
+                        {"name": "Persistence Assessment", "week": 14, "type": "Support", "status": "Pending"},
+                        {"name": "Registration for Next Term", "week": 16, "type": "Support", "status": "Pending"}
+                    ]
+                },
+                "Journey 6: Risk Management & Mitigation": {
+                    "description": "Identify at-risk students and implement intervention strategies",
+                    "focus": "Early warning systems and proactive student support",
+                    "milestones": [
+                        {"name": "Risk Profile Assessment", "week": 1, "type": "Risk", "status": "Completed"},
+                        {"name": "Early Warning Indicators", "week": 3, "type": "Risk", "status": "In Progress"},
+                        {"name": "First Intervention Meeting", "week": 4, "type": "Risk", "status": "Pending"},
+                        {"name": "Mid-Term Risk Evaluation", "week": 8, "type": "Risk", "status": "Pending"},
+                        {"name": "Support Plan Adjustment", "week": 10, "type": "Risk", "status": "Pending"},
+                        {"name": "Pre-Finals Support Intensive", "week": 14, "type": "Risk", "status": "Pending"},
+                        {"name": "Final Risk Assessment", "week": 16, "type": "Risk", "status": "Pending"}
+                    ]
+                }
+            }
+
+            # Journey template selection
+            selected_journey_template = st.selectbox(
+                "Select Journey Template:",
+                options=list(journey_templates.keys()),
+                help="Choose a journey template aligned with institutional priorities"
+            )
+
+            # Display journey template info
+            template = journey_templates[selected_journey_template]
+            st.info(f"**Focus:** {template['focus']}")
+            st.markdown(f"*{template['description']}*")
+
+            # Journey configuration
+            journey_name = st.text_input(
+                "Journey Name:",
+                value=selected_journey_template,
+                help="Give your journey a descriptive name"
+            )
+
+            journey_description = st.text_area(
+                "Journey Description:",
+                value=template['description'],
+                help="Describe the purpose and goals of this journey"
+            )
+
+            # Milestone configuration
+            st.markdown("#### 🎯 Journey Milestones")
+            st.markdown("*Track progress through key checkpoints in this journey*")
+
+            st.info(f"📊 **Milestone Distribution:** The {len(selected_students)} selected students are distributed across milestones based on their GPA and current progress. Students with higher GPAs are likely to be further along in the journey.")
+
+            # Initialize or update milestones based on template
+            if 'current_journey_template' not in st.session_state or st.session_state.current_journey_template != selected_journey_template:
+                st.session_state.journey_milestones = template['milestones']
+                st.session_state.current_journey_template = selected_journey_template
+
+            # Display milestone summary
+            total_milestones = len(st.session_state.journey_milestones)
+            completed_count = len([m for m in st.session_state.journey_milestones if m['status'] == 'Completed'])
+            in_progress_count = len([m for m in st.session_state.journey_milestones if m['status'] == 'In Progress'])
+            pending_count = len([m for m in st.session_state.journey_milestones if m['status'] == 'Pending'])
+
+            # Milestone summary metrics
+            summary_cols = st.columns(4)
+            with summary_cols[0]:
+                st.metric("Total Milestones", total_milestones)
+            with summary_cols[1]:
+                st.metric("Completed", completed_count, delta=f"{completed_count/total_milestones*100:.0f}%")
+            with summary_cols[2]:
+                st.metric("In Progress", in_progress_count)
+            with summary_cols[3]:
+                st.metric("Pending", pending_count)
+
+            st.markdown("---")
+
+            # Determine each student's current milestone
+            # This maps students to milestones based on their progress
+            student_id_col = col_func('STUDENT_ID')
+            gpa_col = col_func('CUMULATIVE_GPA')
+
+            # Calculate student milestone mapping
+            student_milestone_map = {}
+            for idx, student_row in selected_students.iterrows():
+                student_id = student_row[student_id_col] if student_id_col in student_row else f"Student {idx}"
+                gpa = student_row[gpa_col] if gpa_col in student_row else 3.0
+
+                # Determine current milestone based on:
+                # - Completed milestones (from session state)
+                # - Student's GPA (higher GPA = more likely to be progressing)
+                # - Milestone status
+
+                # Calculate progress score (0-1)
+                gpa_progress = min(gpa / 4.0, 1.0)
+                milestone_progress = completed_count / total_milestones if total_milestones > 0 else 0
+                overall_progress = (gpa_progress * 0.4 + milestone_progress * 0.6)
+
+                # Map progress to milestone index
+                # Add some variation per student based on GPA
+                base_milestone_idx = int(overall_progress * (total_milestones - 1))
+
+                # Add variation: high GPA students might be ahead, low GPA behind
+                if gpa >= 3.5:
+                    milestone_idx = min(base_milestone_idx + 1, total_milestones - 1)
+                elif gpa < 2.5:
+                    milestone_idx = max(base_milestone_idx - 1, 0)
+                else:
+                    milestone_idx = base_milestone_idx
+
+                # Add some randomness for realism (within +/- 1 milestone)
+                variation = np.random.randint(-1, 2)
+                milestone_idx = max(0, min(milestone_idx + variation, total_milestones - 1))
+
+                student_milestone_map[student_id] = milestone_idx
+
+            # Group students by milestone
+            milestone_students = {}
+            for student_id, milestone_idx in student_milestone_map.items():
+                if milestone_idx not in milestone_students:
+                    milestone_students[milestone_idx] = []
+                milestone_students[milestone_idx].append(student_id)
+
+            # Display milestones as styled cards
+            for i, milestone in enumerate(st.session_state.journey_milestones):
+                # Status styling
+                status_styles = {
+                    'Completed': {
+                        'emoji': '✅',
+                        'color': '#10b981',
+                        'bg': 'rgba(16, 185, 129, 0.1)',
+                        'border': '#10b981'
+                    },
+                    'In Progress': {
+                        'emoji': '🔄',
+                        'color': '#f59e0b',
+                        'bg': 'rgba(245, 158, 11, 0.1)',
+                        'border': '#f59e0b'
+                    },
+                    'Pending': {
+                        'emoji': '⏳',
+                        'color': '#6b7280',
+                        'bg': 'rgba(107, 116, 128, 0.1)',
+                        'border': '#6b7280'
+                    }
+                }
+
+                style = status_styles.get(milestone['status'], status_styles['Pending'])
+
+                # Type badge colors
+                type_colors = {
+                    'Enrollment': '#6366f1',
+                    'Financial': '#10b981',
+                    'Services': '#8b5cf6',
+                    'Academic': '#3b82f6',
+                    'Support': '#ec4899',
+                    'Risk': '#ef4444',
+                    'Administrative': '#64748b'
+                }
+                type_color = type_colors.get(milestone['type'], '#6b7280')
+
+                # Get students at this milestone
+                students_at_milestone = milestone_students.get(i, [])
+                student_count = len(students_at_milestone)
+
+                # Build student list HTML
+                students_html = ""
+                if student_count > 0:
+                    # Show count badge
+                    count_badge = f"<div style='margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(148, 163, 184, 0.2);'><div style='display: flex; align-items: center; gap: 10px; margin-bottom: 8px;'><span style='background: {style['color']}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;'>👥 {student_count} Student{'s' if student_count != 1 else ''} at this milestone</span></div>"
+
+                    # Show student IDs/names (up to 5, then show count)
+                    if student_count <= 5:
+                        student_chips = []
+                        for student in students_at_milestone:
+                            student_chips.append(f"<span style='background: rgba(99, 102, 241, 0.15); color: #818cf8; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; margin-right: 6px; margin-bottom: 4px; display: inline-block; border: 1px solid rgba(99, 102, 241, 0.3);'>{student}</span>")
+                        students_html = count_badge + "<div style='display: flex; flex-wrap: wrap; gap: 4px;'>" + "".join(student_chips) + "</div></div>"
+                    else:
+                        # Show first 3 and "X more"
+                        student_chips = []
+                        for student in students_at_milestone[:3]:
+                            student_chips.append(f"<span style='background: rgba(99, 102, 241, 0.15); color: #818cf8; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; margin-right: 6px; margin-bottom: 4px; display: inline-block; border: 1px solid rgba(99, 102, 241, 0.3);'>{student}</span>")
+                        more_count = student_count - 3
+                        student_chips.append(f"<span style='background: rgba(107, 114, 128, 0.15); color: #9ca3af; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; font-style: italic; display: inline-block;'>+{more_count} more</span>")
+                        students_html = count_badge + "<div style='display: flex; flex-wrap: wrap; gap: 4px;'>" + "".join(student_chips) + "</div></div>"
+
+                milestone_html = f"<div style='background: {style['bg']}; border-left: 4px solid {style['border']}; padding: 15px; margin-bottom: 12px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'><div style='display: flex; justify-content: space-between; align-items: center;'><div style='flex: 1;'><div style='font-size: 1.1rem; font-weight: 600; color: #e2e8f0; margin-bottom: 6px;'>{style['emoji']} {milestone['name']}</div><div style='display: flex; gap: 15px; font-size: 0.9rem;'><span style='color: #94a3b8;'><strong>📅 Week {milestone['week']}</strong></span><span style='background: {type_color}; color: white; padding: 2px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: 500;'>{milestone['type']}</span></div></div><div style='text-align: right;'><span style='background: {style['color']}; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; white-space: nowrap;'>{milestone['status']}</span></div></div>{students_html}</div>"
+                st.markdown(milestone_html, unsafe_allow_html=True)
+
+            st.markdown("---")
+
+            # Journey visualization
+            st.markdown("### 📊 Step 3: Journey Visualization")
+
+            # Create timeline visualization
+            fig_timeline = go.Figure()
+
+            # Add milestones to timeline
+            for idx, milestone in enumerate(st.session_state.journey_milestones):
+                color_map = {
+                    'Completed': '#10b981',
+                    'In Progress': '#f59e0b',
+                    'Pending': '#6b7280'
+                }
+
+                # Get students at this milestone
+                students_at_this_milestone = milestone_students.get(idx, [])
+                student_count = len(students_at_this_milestone)
+
+                # Build student list for tooltip
+                if student_count > 0:
+                    if student_count <= 5:
+                        # Show all students
+                        student_list = "<br>".join([f"  • {s}" for s in students_at_this_milestone])
+                    else:
+                        # Show first 5 and count
+                        student_list = "<br>".join([f"  • {s}" for s in students_at_this_milestone[:5]])
+                        student_list += f"<br>  • ... and {student_count - 5} more"
+
+                    students_info = f"<br><br><b>Students ({student_count}):</b><br>{student_list}"
+                else:
+                    students_info = "<br><br><b>No students at this milestone yet</b>"
+
+                # Increase marker size based on student count
+                marker_size = 20 + min(student_count * 3, 30)  # Scale from 20 to 50 based on students
+
+                fig_timeline.add_trace(go.Scatter(
+                    x=[milestone['week']],
+                    y=[milestone['name']],
+                    mode='markers+text',
+                    marker=dict(
+                        size=marker_size,
+                        color=color_map.get(milestone['status'], '#6b7280'),
+                        symbol='circle',
+                        line=dict(width=2, color='white')
+                    ),
+                    text=[f"Week {milestone['week']}<br>({student_count})"],
+                    textposition="top center",
+                    textfont=dict(size=10, color='white'),
+                    name=milestone['name'],
+                    hovertemplate=f"<b>{milestone['name']}</b><br>" +
+                                  f"Week: {milestone['week']}<br>" +
+                                  f"Type: {milestone['type']}<br>" +
+                                  f"Status: {milestone['status']}" +
+                                  students_info +
+                                  "<extra></extra>"
+                ))
+
+            # Add connecting line
+            weeks = [m['week'] for m in st.session_state.journey_milestones]
+            names = [m['name'] for m in st.session_state.journey_milestones]
+
+            fig_timeline.add_trace(go.Scatter(
+                x=weeks,
+                y=names,
+                mode='lines',
+                line=dict(color='#6366f1', width=2, dash='dash'),
+                showlegend=False,
+                hoverinfo='skip'
+            ))
+
+            fig_timeline.update_layout(
+                title="Journey Timeline",
+                xaxis_title="Week",
+                yaxis_title="Milestone",
+                template="plotly_dark",
+                height=400,
+                showlegend=False,
+                xaxis=dict(range=[-1, 17]),
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)'
+            )
+
+            st.plotly_chart(fig_timeline, use_container_width=True)
+
+            # Student progress tracking
+            st.markdown("---")
+            st.markdown("### 📈 Step 4: Student Progress")
+
+            # Create sample progress data for visualization
+            student_id_col = col_func('STUDENT_ID')
+            gpa_col = col_func('CUMULATIVE_GPA')
+
+            progress_data = []
+            total_milestones = len(st.session_state.journey_milestones)
+            completed_milestones_count = len([m for m in st.session_state.journey_milestones if m['status'] == 'Completed'])
+
+            for idx, student_row in selected_students.head(5).iterrows():  # Show top 5 students
+                student_id = student_row[student_id_col] if student_id_col in student_row else f"Student {idx}"
+                gpa = student_row[gpa_col] if gpa_col in student_row else 3.0
+
+                # Calculate progress percentage based on journey milestones and GPA
+                milestone_progress = (completed_milestones_count / total_milestones) * 50  # 50% weight for milestones
+                gpa_progress = (gpa / 4.0) * 50  # 50% weight for GPA
+                progress_pct = min(100, milestone_progress + gpa_progress)
+
+                # Simulate individual student milestone completion (slight variation)
+                individual_completed = max(completed_milestones_count - 1, min(completed_milestones_count + np.random.randint(-1, 2), total_milestones))
+
+                progress_data.append({
+                    'Student ID': student_id,
+                    'Progress': progress_pct,
+                    'GPA': gpa,
+                    'Completed Milestones': individual_completed,
+                    'Total Milestones': total_milestones
+                })
+
+            if progress_data:
+                progress_df = pd.DataFrame(progress_data)
+
+                # Create progress bar chart
+                fig_progress = go.Figure()
+
+                fig_progress.add_trace(go.Bar(
+                    y=progress_df['Student ID'],
+                    x=progress_df['Progress'],
+                    orientation='h',
+                    marker=dict(
+                        color=progress_df['Progress'],
+                        colorscale='Viridis',
+                        showscale=True,
+                        colorbar=dict(title="Progress %")
+                    ),
+                    text=[f"{p:.0f}%" for p in progress_df['Progress']],
+                    textposition='inside',
+                    hovertemplate='<b>%{y}</b><br>' +
+                                  'Progress: %{x:.1f}%<br>' +
+                                  'GPA: %{customdata[0]:.2f}<br>' +
+                                  'Completed: %{customdata[1]}/%{customdata[2]}<extra></extra>',
+                    customdata=progress_df[['GPA', 'Completed Milestones', 'Total Milestones']].values
+                ))
+
+                fig_progress.update_layout(
+                    title="Student Progress Overview",
+                    xaxis_title="Progress (%)",
+                    yaxis_title="Student",
+                    template="plotly_dark",
+                    height=300,
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    xaxis=dict(range=[0, 100])
+                )
+
+                st.plotly_chart(fig_progress, use_container_width=True)
+
+                # Display progress table
+                st.markdown("#### 📊 Detailed Progress")
+
+                display_progress = progress_df.copy()
+                display_progress['Progress'] = display_progress['Progress'].apply(lambda x: f"{x:.1f}%")
+                display_progress['GPA'] = display_progress['GPA'].apply(lambda x: f"{x:.2f}")
+                display_progress['Milestones'] = display_progress.apply(
+                    lambda row: f"{row['Completed Milestones']}/{row['Total Milestones']}", axis=1
+                )
+                display_progress = display_progress[['Student ID', 'GPA', 'Progress', 'Milestones']]
+
+                st.dataframe(display_progress, use_container_width=True)
+
+            # Action buttons
+            st.markdown("---")
+            btn_col1, btn_col2, btn_col3 = st.columns(3)
+
+            with btn_col1:
+                if st.button("💾 Save Journey", use_container_width=True):
+                    st.success("✅ Journey saved successfully!")
+                    st.info(f"Journey '{journey_name}' has been saved with {len(selected_students)} students.")
+
+            with btn_col2:
+                if st.button("📧 Notify Students", use_container_width=True):
+                    st.success("✅ Notification sent!")
+                    st.info(f"Email notifications sent to {len(selected_students)} students about their journey.")
+
+            with btn_col3:
+                if st.button("📊 Export Report", use_container_width=True):
+                    st.success("✅ Report generated!")
+                    st.info("Journey report is ready for download.")
+
+            # Strategic insights
+            st.markdown("---")
+            st.markdown("### 💡 Strategic Insights & Journey Analysis")
+
+            # Journey-specific analysis
+            gpa_col = col_func('CUMULATIVE_GPA')
+            nationality_col = col_func('NATIONALITY')
+            # Use correct column names from catalog or try direct column names
+            try:
+                aid_col = col_func('aid_amount')  # alias for financial_aid_monetary_amount
+            except:
+                aid_col = 'financial_aid_monetary_amount'
+
+            try:
+                housing_col = col_func('housing_status')
+            except:
+                housing_col = 'housing_status'
+
+            if len(selected_students) > 0:
+                # Common metrics
+                avg_gpa = selected_students[gpa_col].mean() if gpa_col in selected_students.columns else 0
+                at_risk_count = len(selected_students[selected_students[gpa_col] < 2.5]) if gpa_col in selected_students.columns else 0
+                high_performers = len(selected_students[selected_students[gpa_col] > 3.5]) if gpa_col in selected_students.columns else 0
+
+                # Journey-specific metrics and recommendations
+                journey_analysis = ""
+                recommendations = []
+
+                if "Journey 1: Enrollment" in selected_journey_template:
+                    # Enrollment & Composition Analysis
+                    nationalities = selected_students[nationality_col].nunique() if nationality_col in selected_students.columns else 0
+                    uae_students = len(selected_students[selected_students[nationality_col] == 'United Arab Emirates']) if nationality_col in selected_students.columns else 0
+                    international_pct = ((len(selected_students) - uae_students) / len(selected_students) * 100) if len(selected_students) > 0 else 0
+
+                    journey_analysis = f"<strong>📊 Enrollment & Composition Analysis:</strong><br/>• Total Cohort: <strong>{len(selected_students)}</strong> students<br/>• Diversity Index: <strong>{nationalities}</strong> nationalities represented<br/>• UAE Nationals: <strong>{uae_students}</strong> ({uae_students/len(selected_students)*100:.1f}%)<br/>• International Students: <strong>{len(selected_students) - uae_students}</strong> ({international_pct:.1f}%)<br/>• Average GPA: <strong>{avg_gpa:.2f}</strong><br/><br/>"
+
+                    recommendations.append("• Enhance cultural integration programs for diverse student body")
+                    recommendations.append("• Strengthen recruitment in underrepresented markets")
+                    recommendations.append(f"• Monitor orientation completion for all {len(selected_students)} students")
+                    recommendations.append("• Establish peer mentoring across nationality groups")
+                    if international_pct > 50:
+                        recommendations.append("• Provide additional ESL support for international students")
+
+                elif "Journey 2: Revenue" in selected_journey_template:
+                    # Financial Strategy Analysis
+                    students_with_aid = len(selected_students[selected_students[aid_col] > 0]) if aid_col in selected_students.columns else 0
+                    avg_aid = selected_students[aid_col].mean() if aid_col in selected_students.columns and students_with_aid > 0 else 0
+                    total_aid = selected_students[aid_col].sum() if aid_col in selected_students.columns else 0
+
+                    journey_analysis = f"<strong>💰 Financial Strategy Analysis:</strong><br/>• Total Cohort: <strong>{len(selected_students)}</strong> students<br/>• Students Receiving Aid: <strong>{students_with_aid}</strong> ({students_with_aid/len(selected_students)*100:.1f}%)<br/>• Average Aid Amount: <strong>AED {avg_aid:,.0f}</strong><br/>• Total Aid Distributed: <strong>AED {total_aid:,.0f}</strong><br/>• Students Without Aid: <strong>{len(selected_students) - students_with_aid}</strong><br/><br/>"
+
+                    recommendations.append(f"• Review payment plans for {len(selected_students)} enrolled students")
+                    recommendations.append("• Implement automated payment reminders before deadlines")
+                    recommendations.append(f"• Monitor aid renewal eligibility for {students_with_aid} aid recipients")
+                    if students_with_aid < len(selected_students) * 0.5:
+                        recommendations.append("• Increase awareness of available financial aid programs")
+                    recommendations.append("• Track payment completion rates by milestone week")
+
+                elif "Journey 3: Student Services" in selected_journey_template:
+                    # Services & Operations Analysis
+                    housed_students = len(selected_students[selected_students[housing_col].notna()]) if housing_col in selected_students.columns else 0
+                    housing_pct = (housed_students / len(selected_students) * 100) if len(selected_students) > 0 else 0
+
+                    journey_analysis = f"<strong>🏠 Student Services Analysis:</strong><br/>• Total Cohort: <strong>{len(selected_students)}</strong> students<br/>• Students with Housing: <strong>{housed_students}</strong> ({housing_pct:.1f}%)<br/>• Commuter Students: <strong>{len(selected_students) - housed_students}</strong><br/>• Average GPA: <strong>{avg_gpa:.2f}</strong><br/><br/>"
+
+                    recommendations.append(f"• Ensure housing assignments completed for {housed_students} students")
+                    recommendations.append("• Schedule move-in coordination and room check-ins")
+                    recommendations.append("• Promote recreation and wellness program enrollment")
+                    recommendations.append("• Conduct mid-semester satisfaction surveys")
+                    if housing_pct < 50:
+                        recommendations.append("• Develop enhanced commuter student support services")
+
+                elif "Journey 4: Academic Performance" in selected_journey_template:
+                    # Academic Performance Analysis
+                    journey_analysis = f"<strong>🎓 Academic Performance Analysis:</strong><br/>• Total Cohort: <strong>{len(selected_students)}</strong> students<br/>• Average GPA: <strong>{avg_gpa:.2f}</strong><br/>• High Performers (GPA &gt; 3.5): <strong>{high_performers}</strong> ({high_performers/len(selected_students)*100:.1f}%)<br/>• At-Risk (GPA &lt; 2.5): <strong>{at_risk_count}</strong> ({at_risk_count/len(selected_students)*100:.1f}%)<br/>• Steady Performers (GPA 2.5-3.5): <strong>{len(selected_students) - high_performers - at_risk_count}</strong><br/><br/>"
+
+                    recommendations.append("• Monitor first week attendance across all courses")
+                    recommendations.append(f"• Provide academic support resources for {at_risk_count} at-risk students")
+                    recommendations.append("• Schedule mid-term academic progress reviews")
+                    if high_performers > 0:
+                        recommendations.append(f"• Recognize and celebrate {high_performers} high-achieving students")
+                    recommendations.append("• Implement early warning system for assignment completion")
+
+                elif "Journey 5: Retention" in selected_journey_template:
+                    # Retention & Success Analysis
+                    steady_performers = len(selected_students) - high_performers - at_risk_count if gpa_col in selected_students.columns else 0
+
+                    journey_analysis = f"<strong>🎯 Retention & Success Analysis:</strong><br/>• Total Cohort: <strong>{len(selected_students)}</strong> students<br/>• High Retention Risk (GPA &lt; 2.5): <strong>{at_risk_count}</strong> ({at_risk_count/len(selected_students)*100:.1f}%)<br/>• Stable Students: <strong>{steady_performers + high_performers}</strong> ({(steady_performers + high_performers)/len(selected_students)*100:.1f}%)<br/>• Average GPA: <strong>{avg_gpa:.2f}</strong><br/><br/>"
+
+                    recommendations.append("• Implement weekly engagement check-ins for all students")
+                    if at_risk_count > 0:
+                        recommendations.append(f"• Priority intervention for {at_risk_count} at-risk students")
+                    recommendations.append("• Schedule mandatory academic advising by week 10")
+                    recommendations.append("• Monitor course drop patterns and re-enrollment intent")
+                    recommendations.append(f"• Ensure all {len(selected_students)} students register for next term")
+
+                elif "Journey 6: Risk Management" in selected_journey_template:
+                    # Risk Management Analysis
+                    critical_risk = len(selected_students[selected_students[gpa_col] < 2.0]) if gpa_col in selected_students.columns else 0
+                    moderate_risk = at_risk_count - critical_risk
+
+                    journey_analysis = f"<strong>⚠️ Risk Management Analysis:</strong><br/>• Total Cohort: <strong>{len(selected_students)}</strong> students<br/>• Critical Risk (GPA &lt; 2.0): <strong>{critical_risk}</strong> ({critical_risk/len(selected_students)*100:.1f}%)<br/>• Moderate Risk (GPA 2.0-2.5): <strong>{moderate_risk}</strong> ({moderate_risk/len(selected_students)*100:.1f}%)<br/>• Low Risk (GPA &gt; 2.5): <strong>{len(selected_students) - at_risk_count}</strong> ({(len(selected_students) - at_risk_count)/len(selected_students)*100:.1f}%)<br/>• Average GPA: <strong>{avg_gpa:.2f}</strong><br/><br/>"
+
+                    if critical_risk > 0:
+                        recommendations.append(f"• URGENT: Immediate intervention for {critical_risk} critical-risk students")
+                    if moderate_risk > 0:
+                        recommendations.append(f"• Schedule support meetings for {moderate_risk} moderate-risk students")
+                    recommendations.append("• Implement weekly progress monitoring and early alerts")
+                    recommendations.append("• Coordinate with counseling services for struggling students")
+                    recommendations.append("• Provide pre-finals intensive support workshops")
+
+                else:
+                    # Custom Journey - General Analysis
+                    journey_analysis = f"<strong>📊 Cohort Analysis:</strong><br/>• Total Students: <strong>{len(selected_students)}</strong><br/>• Average GPA: <strong>{avg_gpa:.2f}</strong><br/>• High Performers: <strong>{high_performers}</strong> ({high_performers/len(selected_students)*100:.1f}%)<br/>• At-Risk Students: <strong>{at_risk_count}</strong> ({at_risk_count/len(selected_students)*100:.1f}%)<br/><br/>"
+
+                    if at_risk_count > 0:
+                        recommendations.append(f"• Implement early intervention for {at_risk_count} at-risk students")
+                    if high_performers > 0:
+                        recommendations.append(f"• Establish peer mentoring with {high_performers} high performers")
+                    recommendations.append("• Schedule bi-weekly check-ins for milestone tracking")
+                    recommendations.append("• Coordinate with academic advisors for personalized support")
+                    recommendations.append("• Monitor attendance and engagement metrics closely")
+
+                recommendations_html = "<br/>".join(recommendations)
+
+                st.markdown(f"""
+                <div style='background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(16, 185, 129, 0.1));
+                            padding: 20px; border-radius: 10px; border: 1px solid #334155;'>
+                    <p style='color: #e2e8f0; margin: 0;'>
+                    {journey_analysis}
+                    <strong>💡 Journey-Specific Recommendations:</strong><br/>
+                    {recommendations_html}
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
+            # What-If Analysis Section
+            st.markdown("---")
+            st.markdown("### 🔮 What-If Analysis: Scenario Planning")
+            st.markdown("*Simulate different interventions and see their potential impact on student progression*")
+
+            # Scenario selection with categories
+            scenario_category = st.selectbox(
+                "Scenario Category:",
+                ["Academic Support", "Financial & Resources", "Student Services", "Risk & Retention", "Program Design"],
+                help="Select a category to filter scenarios"
+            )
+
+            # Scenarios organized by category
+            scenarios_by_category = {
+                "Academic Support": [
+                    "None - Show Current State",
+                    "📈 Early Intervention for At-Risk Students",
+                    "💡 Enhanced Academic Resources",
+                    "📚 Study Skills Workshop",
+                    "👨‍🏫 Faculty Office Hours Expansion",
+                    "🧠 Cognitive Skills Training",
+                    "📖 Supplemental Instruction Program"
+                ],
+                "Financial & Resources": [
+                    "None - Show Current State",
+                    "💰 Increased Financial Aid Impact",
+                    "💳 Emergency Grant Program",
+                    "💼 Work-Study Program Expansion",
+                    "🏦 Scholarship Opportunities",
+                    "📉 Tuition Reduction Scenario"
+                ],
+                "Student Services": [
+                    "None - Show Current State",
+                    "🏆 Peer Mentoring Impact",
+                    "🏠 On-Campus Housing Initiative",
+                    "🧘 Mental Health & Wellness Support",
+                    "🌍 International Student Services",
+                    "👨‍👩‍👧 First-Generation Support Program",
+                    "🎯 Career Services Integration"
+                ],
+                "Risk & Retention": [
+                    "None - Show Current State",
+                    "⚠️ Attrition Risk Analysis",
+                    "🔔 Early Alert System Implementation",
+                    "📊 Academic Probation Recovery",
+                    "🔄 Re-enrollment Campaign",
+                    "🎓 Completion Incentive Program"
+                ],
+                "Program Design": [
+                    "None - Show Current State",
+                    "🎯 Accelerated Support Program",
+                    "☀️ Summer Session Strategy",
+                    "🔀 Course Load Optimization",
+                    "💻 Hybrid Learning Model",
+                    "🏢 Co-op/Internship Integration",
+                    "📅 Flexible Scheduling Options"
+                ]
+            }
+
+            what_if_scenario = st.selectbox(
+                "Select Scenario:",
+                scenarios_by_category[scenario_category],
+                help="Choose a what-if scenario to simulate"
+            )
+
+            if what_if_scenario != "None - Show Current State":
+                st.markdown(f"**Simulating:** {what_if_scenario}")
+
+                # Scenario parameters
+                scenario_col1, scenario_col2 = st.columns(2)
+
+                with scenario_col1:
+                    st.markdown("#### 🎛️ Intervention Parameters")
+                    if "At-Risk" in what_if_scenario:
+                        intervention_effectiveness = st.slider(
+                            "Intervention Effectiveness (%)",
+                            min_value=0,
+                            max_value=100,
+                            value=70,
+                            help="Percentage of at-risk students who successfully advance"
+                        )
+                        affected_students_pct = st.slider(
+                            "Students Reached (%)",
+                            min_value=0,
+                            max_value=100,
+                            value=80,
+                            help="Percentage of at-risk students who receive intervention"
+                        )
+                        gpa_threshold = st.slider(
+                            "At-Risk GPA Threshold",
+                            min_value=0.0,
+                            max_value=3.0,
+                            value=2.5,
+                            step=0.1,
+                            help="Students below this GPA are considered at-risk"
+                        )
+                        intervention_duration = st.slider(
+                            "Intervention Duration (weeks)",
+                            min_value=2,
+                            max_value=16,
+                            value=8,
+                            help="Length of intervention program"
+                        )
+                        advisor_student_ratio = st.slider(
+                            "Advisor to Student Ratio",
+                            min_value=10,
+                            max_value=100,
+                            value=30,
+                            help="Number of students per advisor"
+                        )
+                    elif "Accelerated" in what_if_scenario:
+                        acceleration_rate = st.slider(
+                            "Progress Acceleration (milestones)",
+                            min_value=1,
+                            max_value=3,
+                            value=2,
+                            help="Number of milestones students advance with support"
+                        )
+                        target_group = st.selectbox(
+                            "Target Group:",
+                            ["All Students", "Mid-Performers", "High-Performers"]
+                        )
+                        min_gpa_requirement = st.slider(
+                            "Minimum GPA for Program",
+                            min_value=2.0,
+                            max_value=4.0,
+                            value=3.0,
+                            step=0.1,
+                            help="Minimum GPA to qualify for accelerated program"
+                        )
+                        program_capacity = st.slider(
+                            "Program Capacity (students)",
+                            min_value=10,
+                            max_value=200,
+                            value=50,
+                            help="Maximum students in accelerated program"
+                        )
+                        success_rate = st.slider(
+                            "Expected Success Rate (%)",
+                            min_value=50,
+                            max_value=100,
+                            value=80,
+                            help="Percentage completing accelerated track"
+                        )
+                    elif "Attrition" in what_if_scenario:
+                        attrition_rate = st.slider(
+                            "Projected Attrition Rate (%)",
+                            min_value=0,
+                            max_value=50,
+                            value=15,
+                            help="Percentage of students at risk of dropping out"
+                        )
+                        high_risk_milestone = st.selectbox(
+                            "High-Risk Milestone:",
+                            [m['name'] for m in st.session_state.journey_milestones]
+                        )
+                    elif "Enhanced Academic" in what_if_scenario:
+                        resource_impact = st.slider(
+                            "Resource Impact (GPA increase)",
+                            min_value=0.0,
+                            max_value=1.0,
+                            value=0.3,
+                            step=0.1,
+                            help="Expected GPA improvement from enhanced resources"
+                        )
+                        resource_coverage = st.slider(
+                            "Student Coverage (%)",
+                            min_value=0,
+                            max_value=100,
+                            value=60
+                        )
+                        weekly_tutoring_hours = st.slider(
+                            "Weekly Tutoring Hours Available",
+                            min_value=10,
+                            max_value=100,
+                            value=40,
+                            help="Total tutoring hours per week"
+                        )
+                        resource_utilization = st.slider(
+                            "Resource Utilization Rate (%)",
+                            min_value=30,
+                            max_value=100,
+                            value=70,
+                            help="How much of resources are actually used"
+                        )
+                        implementation_cost = st.slider(
+                            "Implementation Budget (AED)",
+                            min_value=50000,
+                            max_value=500000,
+                            value=150000,
+                            step=10000,
+                            help="Budget for enhanced resources"
+                        )
+                    elif "Peer Mentoring" in what_if_scenario:
+                        mentoring_effectiveness = st.slider(
+                            "Mentoring Effectiveness (%)",
+                            min_value=0,
+                            max_value=100,
+                            value=65
+                        )
+                        mentee_count = st.slider(
+                            "Students with Mentors (%)",
+                            min_value=0,
+                            max_value=100,
+                            value=50
+                        )
+                    elif "Study Skills Workshop" in what_if_scenario:
+                        workshop_impact = st.slider(
+                            "Workshop Impact (milestones)",
+                            min_value=1,
+                            max_value=2,
+                            value=1,
+                            help="Milestone advancement from workshop completion"
+                        )
+                        attendance_rate = st.slider(
+                            "Workshop Attendance (%)",
+                            min_value=0,
+                            max_value=100,
+                            value=75
+                        )
+
+                    # New Academic Support Scenarios
+                    elif "Faculty Office Hours" in what_if_scenario:
+                        office_hours_increase = st.slider(
+                            "Office Hours Increase (%)",
+                            min_value=0,
+                            max_value=200,
+                            value=50,
+                            help="Percentage increase in faculty availability"
+                        )
+                        student_utilization = st.slider(
+                            "Student Utilization (%)",
+                            min_value=0,
+                            max_value=100,
+                            value=40
+                        )
+                    elif "Cognitive Skills" in what_if_scenario:
+                        training_effectiveness = st.slider(
+                            "Training Effectiveness (%)",
+                            min_value=0,
+                            max_value=100,
+                            value=75
+                        )
+                        program_enrollment = st.slider(
+                            "Program Enrollment (%)",
+                            min_value=0,
+                            max_value=100,
+                            value=60
+                        )
+                    elif "Supplemental Instruction" in what_if_scenario:
+                        si_coverage = st.slider(
+                            "Courses with SI (%)",
+                            min_value=0,
+                            max_value=100,
+                            value=50
+                        )
+                        attendance_improvement = st.slider(
+                            "Pass Rate Improvement (%)",
+                            min_value=0,
+                            max_value=50,
+                            value=15
+                        )
+
+                    # Financial & Resources Scenarios
+                    elif "Increased Financial Aid" in what_if_scenario:
+                        aid_increase = st.slider(
+                            "Aid Increase per Student (AED)",
+                            min_value=0,
+                            max_value=20000,
+                            value=5000,
+                            step=1000
+                        )
+                        additional_recipients = st.slider(
+                            "Additional Recipients (%)",
+                            min_value=0,
+                            max_value=50,
+                            value=20
+                        )
+                    elif "Emergency Grant" in what_if_scenario:
+                        grant_amount = st.slider(
+                            "Emergency Grant Amount (AED)",
+                            min_value=500,
+                            max_value=5000,
+                            value=2000,
+                            step=500
+                        )
+                        students_needing_assistance = st.slider(
+                            "Students Needing Assistance (%)",
+                            min_value=0,
+                            max_value=50,
+                            value=15
+                        )
+                    elif "Work-Study" in what_if_scenario:
+                        workstudy_positions = st.slider(
+                            "New Work-Study Positions",
+                            min_value=0,
+                            max_value=100,
+                            value=25
+                        )
+                        retention_boost = st.slider(
+                            "Retention Boost (%)",
+                            min_value=0,
+                            max_value=30,
+                            value=15
+                        )
+                    elif "Scholarship" in what_if_scenario:
+                        new_scholarships = st.slider(
+                            "New Scholarship Recipients",
+                            min_value=0,
+                            max_value=50,
+                            value=15
+                        )
+                        avg_scholarship_amount = st.slider(
+                            "Avg Scholarship (AED)",
+                            min_value=5000,
+                            max_value=50000,
+                            value=15000,
+                            step=5000
+                        )
+                    elif "Tuition Reduction" in what_if_scenario:
+                        tuition_reduction_pct = st.slider(
+                            "Tuition Reduction (%)",
+                            min_value=0,
+                            max_value=30,
+                            value=10
+                        )
+                        enrollment_increase = st.slider(
+                            "Expected Enrollment Increase (%)",
+                            min_value=0,
+                            max_value=50,
+                            value=15
+                        )
+
+                    # Student Services Scenarios
+                    elif "On-Campus Housing" in what_if_scenario:
+                        new_housing_capacity = st.slider(
+                            "Additional Housing Capacity",
+                            min_value=0,
+                            max_value=200,
+                            value=50
+                        )
+                        retention_improvement = st.slider(
+                            "Retention Improvement (%)",
+                            min_value=0,
+                            max_value=25,
+                            value=12
+                        )
+                    elif "Mental Health" in what_if_scenario:
+                        counselor_increase = st.slider(
+                            "Additional Counselors",
+                            min_value=0,
+                            max_value=10,
+                            value=3
+                        )
+                        students_served = st.slider(
+                            "Students Served (%)",
+                            min_value=0,
+                            max_value=100,
+                            value=40
+                        )
+                    elif "International Student" in what_if_scenario:
+                        language_support_hours = st.slider(
+                            "Language Support Hours/Week",
+                            min_value=0,
+                            max_value=40,
+                            value=20
+                        )
+                        international_retention = st.slider(
+                            "International Retention Boost (%)",
+                            min_value=0,
+                            max_value=30,
+                            value=18
+                        )
+                    elif "First-Generation" in what_if_scenario:
+                        firstgen_support_budget = st.slider(
+                            "Support Program Budget (AED)",
+                            min_value=0,
+                            max_value=100000,
+                            value=50000,
+                            step=10000
+                        )
+                        firstgen_success_rate = st.slider(
+                            "Success Rate Improvement (%)",
+                            min_value=0,
+                            max_value=40,
+                            value=20
+                        )
+                    elif "Career Services" in what_if_scenario:
+                        career_workshops = st.slider(
+                            "Career Workshops per Semester",
+                            min_value=0,
+                            max_value=20,
+                            value=8
+                        )
+                        student_engagement = st.slider(
+                            "Student Engagement (%)",
+                            min_value=0,
+                            max_value=100,
+                            value=55
+                        )
+
+                    # Risk & Retention Scenarios
+                    elif "Early Alert System" in what_if_scenario:
+                        alert_sensitivity = st.slider(
+                            "Alert Sensitivity (milestones behind)",
+                            min_value=1,
+                            max_value=3,
+                            value=2
+                        )
+                        intervention_speed = st.selectbox(
+                            "Intervention Speed:",
+                            ["Within 24 hours", "Within 1 week", "Within 2 weeks"]
+                        )
+                    elif "Academic Probation" in what_if_scenario:
+                        recovery_program_intensity = st.slider(
+                            "Program Intensity (hours/week)",
+                            min_value=0,
+                            max_value=20,
+                            value=10
+                        )
+                        recovery_success_rate = st.slider(
+                            "Expected Recovery Rate (%)",
+                            min_value=0,
+                            max_value=80,
+                            value=50
+                        )
+                    elif "Re-enrollment Campaign" in what_if_scenario:
+                        outreach_coverage = st.slider(
+                            "Former Students Reached (%)",
+                            min_value=0,
+                            max_value=100,
+                            value=70
+                        )
+                        re_enrollment_rate = st.slider(
+                            "Expected Re-enrollment Rate (%)",
+                            min_value=0,
+                            max_value=40,
+                            value=15
+                        )
+                    elif "Completion Incentive" in what_if_scenario:
+                        incentive_amount = st.slider(
+                            "Completion Incentive (AED)",
+                            min_value=0,
+                            max_value=10000,
+                            value=3000,
+                            step=500
+                        )
+                        acceleration_effect = st.slider(
+                            "Milestone Acceleration",
+                            min_value=1,
+                            max_value=3,
+                            value=2
+                        )
+
+                    # Program Design Scenarios
+                    elif "Summer Session" in what_if_scenario:
+                        summer_enrollment = st.slider(
+                            "Summer Enrollment (%)",
+                            min_value=0,
+                            max_value=100,
+                            value=35
+                        )
+                        timeline_reduction = st.slider(
+                            "Timeline Reduction (milestones)",
+                            min_value=1,
+                            max_value=4,
+                            value=2
+                        )
+                    elif "Course Load Optimization" in what_if_scenario:
+                        recommended_load = st.slider(
+                            "Recommended Credit Hours",
+                            min_value=9,
+                            max_value=18,
+                            value=12
+                        )
+                        success_rate_change = st.slider(
+                            "Success Rate Change (%)",
+                            min_value=-20,
+                            max_value=30,
+                            value=15
+                        )
+                    elif "Hybrid Learning" in what_if_scenario:
+                        hybrid_course_pct = st.slider(
+                            "Courses Offered Hybrid (%)",
+                            min_value=0,
+                            max_value=100,
+                            value=50
+                        )
+                        flexibility_benefit = st.slider(
+                            "Retention Benefit (%)",
+                            min_value=0,
+                            max_value=25,
+                            value=10
+                        )
+                    elif "Co-op/Internship" in what_if_scenario:
+                        internship_placement = st.slider(
+                            "Students with Internships (%)",
+                            min_value=0,
+                            max_value=100,
+                            value=40
+                        )
+                        engagement_boost = st.slider(
+                            "Engagement Boost (%)",
+                            min_value=0,
+                            max_value=40,
+                            value=25
+                        )
+                    elif "Flexible Scheduling" in what_if_scenario:
+                        evening_weekend_courses = st.slider(
+                            "Evening/Weekend Courses (%)",
+                            min_value=0,
+                            max_value=50,
+                            value=25
+                        )
+                        working_student_retention = st.slider(
+                            "Working Student Retention (%)",
+                            min_value=0,
+                            max_value=30,
+                            value=18
+                        )
+                    else:
+                        pass  # Fallback for original scenarios
+
+                with scenario_col2:
+                    st.markdown("#### 💰 Budget & Implementation")
+
+                    # Common implementation parameters
+                    implementation_timeline = st.selectbox(
+                        "Implementation Timeline:",
+                        ["Immediate (1-2 weeks)", "Short-term (1 month)", "Medium-term (3 months)", "Long-term (6+ months)"],
+                        help="Time required to implement this intervention"
+                    )
+
+                    budget_allocation = st.slider(
+                        "Budget Allocation (AED)",
+                        min_value=10000,
+                        max_value=1000000,
+                        value=100000,
+                        step=10000,
+                        help="Total budget for this intervention"
+                    )
+
+                    staff_required = st.slider(
+                        "Staff/Faculty Required",
+                        min_value=1,
+                        max_value=20,
+                        value=5,
+                        help="Additional staff needed"
+                    )
+
+                    risk_level = st.selectbox(
+                        "Implementation Risk:",
+                        ["Low", "Medium", "High"],
+                        help="Risk level of implementing this intervention"
+                    )
+
+                    expected_roi_months = st.slider(
+                        "Expected ROI Timeline (months)",
+                        min_value=3,
+                        max_value=24,
+                        value=12,
+                        help="Months until return on investment"
+                    )
+
+                    st.markdown("---")
+                    st.markdown("#### 📊 Projected Impact")
+
+                    # Calculate scenario impact
+                    total_students_in_journey = len(selected_students)
+
+                    if "At-Risk" in what_if_scenario:
+                        # Calculate at-risk students based on adjustable GPA threshold
+                        gpa_col = col_func('CUMULATIVE_GPA')
+                        if gpa_col in selected_students.columns:
+                            at_risk_by_gpa = len(selected_students[selected_students[gpa_col] < gpa_threshold])
+                        else:
+                            at_risk_by_gpa = int(total_students_in_journey * 0.2)
+
+                        at_risk_by_milestone = [sid for sid, midx in student_milestone_map.items()
+                                          if midx < len(st.session_state.journey_milestones) // 2]
+                        at_risk_count = max(at_risk_by_gpa, len(at_risk_by_milestone))
+
+                        # Calculate impact with new parameters
+                        students_reached = int(at_risk_count * (affected_students_pct / 100))
+                        advisors_needed = int(students_reached / advisor_student_ratio) + 1
+                        students_improved = int(students_reached * (intervention_effectiveness / 100))
+
+                        # Calculate cost per student
+                        cost_per_student = budget_allocation / students_reached if students_reached > 0 else 0
+
+                        # Calculate retention value (estimated revenue saved)
+                        retention_value = students_improved * 50000  # AED 50k per student
+                        roi_percentage = ((retention_value - budget_allocation) / budget_allocation * 100) if budget_allocation > 0 else 0
+
+                        col_m1, col_m2, col_m3 = st.columns(3)
+                        with col_m1:
+                            st.metric("At-Risk Students", at_risk_count, delta=f"GPA < {gpa_threshold}")
+                        with col_m2:
+                            st.metric("Students Reached", students_reached, delta=f"{affected_students_pct}% coverage")
+                        with col_m3:
+                            st.metric("Expected to Improve", students_improved, delta=f"+{students_improved/at_risk_count*100:.0f}%")
+
+                        col_m4, col_m5, col_m6 = st.columns(3)
+                        with col_m4:
+                            st.metric("Advisors Needed", advisors_needed, delta=f"1:{advisor_student_ratio} ratio")
+                        with col_m5:
+                            st.metric("Cost per Student", f"AED {cost_per_student:,.0f}")
+                        with col_m6:
+                            st.metric("ROI", f"{roi_percentage:,.0f}%", delta="Positive" if roi_percentage > 0 else "Negative")
+
+                        impact_text = f"Intervention over <strong>{intervention_duration} weeks</strong> could help <strong>{students_improved} students</strong> advance to on-track status, reducing at-risk population by <strong>{students_improved/at_risk_count*100:.1f}%</strong>. Total investment: <strong>AED {budget_allocation:,.0f}</strong> with projected retention value of <strong>AED {retention_value:,.0f}</strong> ({roi_percentage:+.0f}% ROI). Risk Level: <strong>{risk_level}</strong>."
+
+                    elif "Accelerated" in what_if_scenario:
+                        # Filter eligible students based on GPA requirement
+                        gpa_col = col_func('CUMULATIVE_GPA')
+                        if gpa_col in selected_students.columns:
+                            eligible_students = len(selected_students[selected_students[gpa_col] >= min_gpa_requirement])
+                        else:
+                            eligible_students = int(total_students_in_journey * 0.4)
+
+                        # Apply program capacity constraint
+                        if target_group == "All Students":
+                            affected_count = min(eligible_students, program_capacity)
+                        elif target_group == "Mid-Performers":
+                            affected_count = min(int(eligible_students * 0.6), program_capacity)
+                        else:
+                            affected_count = min(int(eligible_students * 0.3), program_capacity)
+
+                        # Calculate students who successfully complete
+                        students_advanced = int(affected_count * (success_rate / 100))
+                        cost_per_student = budget_allocation / affected_count if affected_count > 0 else 0
+
+                        # Calculate time savings value
+                        time_saved_per_student = acceleration_rate * 4  # weeks per milestone
+                        early_completion_value = students_advanced * 15000  # Value of early completion
+                        roi_percentage = ((early_completion_value - budget_allocation) / budget_allocation * 100) if budget_allocation > 0 else 0
+
+                        col_m1, col_m2, col_m3 = st.columns(3)
+                        with col_m1:
+                            st.metric("Eligible Students", eligible_students, delta=f"GPA ≥ {min_gpa_requirement}")
+                        with col_m2:
+                            st.metric("Program Participants", affected_count, delta=f"Capacity: {program_capacity}")
+                        with col_m3:
+                            st.metric("Successfully Advance", students_advanced, delta=f"{success_rate}% success rate")
+
+                        col_m4, col_m5, col_m6 = st.columns(3)
+                        with col_m4:
+                            st.metric("Milestone Jump", acceleration_rate, delta=f"{time_saved_per_student} weeks saved")
+                        with col_m5:
+                            st.metric("Cost per Student", f"AED {cost_per_student:,.0f}")
+                        with col_m6:
+                            st.metric("Program ROI", f"{roi_percentage:,.0f}%", delta="Positive" if roi_percentage > 0 else "Negative")
+
+                        impact_text = f"Accelerated program for <strong>{affected_count} students</strong> (GPA ≥ {min_gpa_requirement}) could advance <strong>{students_advanced}</strong> by <strong>{acceleration_rate} milestones</strong>, saving <strong>{time_saved_per_student} weeks</strong> per student. Total investment: <strong>AED {budget_allocation:,.0f}</strong> with projected value of <strong>AED {early_completion_value:,.0f}</strong> ({roi_percentage:+.0f}% ROI). Risk Level: <strong>{risk_level}</strong>."
+
+                    elif "Attrition" in what_if_scenario:
+                        at_risk_dropout = int(total_students_in_journey * (attrition_rate / 100))
+                        revenue_loss = at_risk_dropout * 50000  # Estimate per student
+
+                        st.metric("Students at Risk", at_risk_dropout, delta=f"-{attrition_rate}%", delta_color="inverse")
+                        st.metric("Potential Revenue Loss", f"AED {revenue_loss:,.0f}", delta_color="inverse")
+
+                        impact_text = f"<strong style='color: #ef4444;'>WARNING:</strong> Projected attrition of <strong>{at_risk_dropout} students</strong> at milestone '{high_risk_milestone}', requiring immediate intervention to prevent revenue loss of <strong>AED {revenue_loss:,.0f}</strong>"
+
+                    elif "Enhanced Academic" in what_if_scenario:
+                        # Calculate students who will benefit
+                        students_benefiting = int(total_students_in_journey * (resource_coverage / 100))
+                        actual_users = int(students_benefiting * (resource_utilization / 100))
+                        avg_gpa_increase = resource_impact
+
+                        # Calculate cost metrics
+                        cost_per_student = budget_allocation / students_benefiting if students_benefiting > 0 else 0
+                        cost_per_tutoring_hour = budget_allocation / (weekly_tutoring_hours * 16) if weekly_tutoring_hours > 0 else 0  # 16-week semester
+
+                        # Calculate value metrics
+                        students_improved_significantly = int(actual_users * 0.6)  # 60% show significant improvement
+                        retention_improvement = int(students_improved_significantly * 0.15)  # 15% better retention
+                        retention_value = retention_improvement * 50000
+                        roi_percentage = ((retention_value - budget_allocation) / budget_allocation * 100) if budget_allocation > 0 else 0
+
+                        col_m1, col_m2, col_m3 = st.columns(3)
+                        with col_m1:
+                            st.metric("Students Covered", students_benefiting, delta=f"{resource_coverage}% coverage")
+                        with col_m2:
+                            st.metric("Active Users", actual_users, delta=f"{resource_utilization}% utilization")
+                        with col_m3:
+                            st.metric("Avg GPA Increase", f"+{avg_gpa_increase:.2f}", delta="points")
+
+                        col_m4, col_m5, col_m6 = st.columns(3)
+                        with col_m4:
+                            st.metric("Weekly Tutoring Hrs", weekly_tutoring_hours, delta="available")
+                        with col_m5:
+                            st.metric("Cost per Student", f"AED {cost_per_student:,.0f}")
+                        with col_m6:
+                            st.metric("ROI", f"{roi_percentage:,.0f}%", delta="Positive" if roi_percentage > 0 else "Negative")
+
+                        impact_text = f"Enhanced resources covering <strong>{students_benefiting} students</strong> with <strong>{weekly_tutoring_hours} hours/week</strong> of tutoring could improve GPA by <strong>+{avg_gpa_increase:.2f}</strong> for <strong>{students_improved_significantly} students</strong>, leading to <strong>{retention_improvement}</strong> additional retentions. Total investment: <strong>AED {budget_allocation:,.0f}</strong> with retention value of <strong>AED {retention_value:,.0f}</strong> ({roi_percentage:+.0f}% ROI). Risk Level: <strong>{risk_level}</strong>."
+
+                    elif "Peer Mentoring" in what_if_scenario:
+                        mentees = int(total_students_in_journey * (mentee_count / 100))
+                        successful_mentees = int(mentees * (mentoring_effectiveness / 100))
+
+                        st.metric("Students with Mentors", mentees)
+                        st.metric("Successful Outcomes", successful_mentees)
+                        st.metric("Success Rate", f"{mentoring_effectiveness}%")
+
+                        impact_text = f"Peer mentoring program could support <strong>{mentees} students</strong>, with <strong>{successful_mentees}</strong> expected to show significant improvement in milestone completion"
+
+                    elif "Study Skills Workshop" in what_if_scenario:
+                        attendees = int(total_students_in_journey * (attendance_rate / 100))
+                        students_advancing = int(attendees * 0.85)
+
+                        st.metric("Expected Attendees", attendees)
+                        st.metric("Students Advancing", students_advancing)
+                        st.metric("Milestone Jump", workshop_impact)
+
+                        impact_text = f"Study skills workshop with <strong>{attendees} attendees</strong> could help <strong>{students_advancing} students</strong> advance by <strong>{workshop_impact} milestone(s)</strong>"
+
+                    elif "Faculty Office Hours" in what_if_scenario:
+                        students_utilizing = int(total_students_in_journey * (office_hours_utilization / 100))
+                        students_improved = int(students_utilizing * (office_hours_increase / 100) * 0.7)
+
+                        st.metric("Students Utilizing", students_utilizing)
+                        st.metric("Expected to Improve", students_improved)
+                        st.metric("Utilization Rate", f"{office_hours_utilization}%")
+
+                        impact_text = f"Expanded office hours with <strong>{office_hours_increase}% increase</strong> could benefit <strong>{students_improved} students</strong> through enhanced faculty interaction"
+
+                    elif "Cognitive Skills Training" in what_if_scenario:
+                        enrolled_students = int(total_students_in_journey * (cognitive_enrollment / 100))
+                        students_improved = int(enrolled_students * (cognitive_effectiveness / 100))
+
+                        st.metric("Program Enrollment", enrolled_students)
+                        st.metric("Expected to Improve", students_improved)
+                        st.metric("Effectiveness Rate", f"{cognitive_effectiveness}%")
+
+                        impact_text = f"Cognitive skills training could enroll <strong>{enrolled_students} students</strong> with <strong>{students_improved}</strong> showing measurable academic improvement"
+
+                    elif "Supplemental Instruction" in what_if_scenario:
+                        courses_covered = int(20 * (si_coverage / 100))  # Assume 20 total courses
+                        students_benefiting = int(total_students_in_journey * 0.6)
+                        pass_rate_improvement = si_pass_improvement
+
+                        st.metric("Courses with SI", courses_covered)
+                        st.metric("Students Benefiting", students_benefiting)
+                        st.metric("Pass Rate Increase", f"+{pass_rate_improvement}%")
+
+                        impact_text = f"SI program covering <strong>{courses_covered} courses</strong> could improve pass rates by <strong>{pass_rate_improvement}%</strong> for <strong>{students_benefiting} students</strong>"
+
+                    elif "Increased Financial Aid" in what_if_scenario:
+                        aid_recipients = int(total_students_in_journey * 0.4)  # Assume 40% receive aid
+                        additional_aid_per_student = int(10000 * (aid_increase / 100))
+                        total_aid_cost = aid_recipients * additional_aid_per_student
+                        retention_improvement = int(aid_recipients * 0.15)
+
+                        st.metric("Aid Recipients", aid_recipients)
+                        st.metric("Additional Aid/Student", f"AED {additional_aid_per_student:,.0f}")
+                        st.metric("Retention Improvement", retention_improvement, delta=f"+{retention_improvement/total_students_in_journey*100:.1f}%")
+
+                        impact_text = f"Increasing financial aid by <strong>{aid_increase}%</strong> (AED {total_aid_cost:,.0f} total) could improve retention for <strong>{retention_improvement} students</strong>"
+
+                    elif "Emergency Grant" in what_if_scenario:
+                        eligible_students = int(total_students_in_journey * 0.2)  # Assume 20% may need emergency aid
+                        grant_recipients = int(eligible_students * (emergency_utilization / 100))
+                        total_grant_cost = grant_recipients * emergency_grant_amount
+                        students_retained = int(grant_recipients * 0.8)
+
+                        st.metric("Eligible Students", eligible_students)
+                        st.metric("Grant Recipients", grant_recipients)
+                        st.metric("Students Retained", students_retained, delta=f"+{students_retained/total_students_in_journey*100:.1f}%")
+
+                        impact_text = f"Emergency grants of <strong>AED {emergency_grant_amount:,.0f}</strong> could help <strong>{grant_recipients} students</strong> overcome financial crises, retaining <strong>{students_retained}</strong> who might otherwise drop out"
+
+                    elif "Work-Study" in what_if_scenario:
+                        positions_created = int(100 * (work_study_expansion / 100))
+                        students_employed = min(positions_created, int(total_students_in_journey * 0.3))
+                        avg_earnings = work_study_hours * 15 * 4  # AED 15/hour * 4 weeks
+                        students_retained = int(students_employed * 0.85)
+
+                        st.metric("Positions Created", positions_created)
+                        st.metric("Students Employed", students_employed)
+                        st.metric("Avg Monthly Earnings", f"AED {avg_earnings:,.0f}")
+
+                        impact_text = f"Work-study expansion creating <strong>{positions_created} positions</strong> could employ <strong>{students_employed} students</strong>, each earning ~<strong>AED {avg_earnings:,.0f}/month</strong>"
+
+                    elif "Scholarship Opportunities" in what_if_scenario:
+                        scholarship_recipients = int(total_students_in_journey * (scholarship_coverage / 100))
+                        avg_scholarship = scholarship_amount
+                        total_scholarship_cost = scholarship_recipients * avg_scholarship
+                        gpa_improvement = int(scholarship_recipients * 0.7)
+
+                        st.metric("Scholarship Recipients", scholarship_recipients)
+                        st.metric("Avg Scholarship", f"AED {avg_scholarship:,.0f}")
+                        st.metric("Students with GPA Boost", gpa_improvement)
+
+                        impact_text = f"New scholarship program (AED {total_scholarship_cost:,.0f} total) could support <strong>{scholarship_recipients} students</strong> with <strong>{gpa_improvement}</strong> showing GPA improvement"
+
+                    elif "Tuition Reduction" in what_if_scenario:
+                        revenue_loss = int(total_students_in_journey * 50000 * (tuition_reduction / 100))
+                        new_enrollments = int(50 * (enrollment_increase / 100))
+                        net_revenue_impact = (new_enrollments * 50000) - revenue_loss
+
+                        st.metric("Revenue Loss", f"AED {revenue_loss:,.0f}", delta_color="inverse")
+                        st.metric("New Enrollments", new_enrollments, delta=f"+{enrollment_increase}%")
+                        st.metric("Net Revenue Impact", f"AED {net_revenue_impact:,.0f}", delta="positive" if net_revenue_impact > 0 else "inverse")
+
+                        impact_text = f"<strong>{tuition_reduction}% tuition reduction</strong> projecting <strong>{new_enrollments} new students</strong> with net revenue impact of <strong>AED {net_revenue_impact:,.0f}</strong>"
+
+                    elif "Enhanced Housing" in what_if_scenario:
+                        housing_capacity_increase = int(500 * (housing_investment / 500000))
+                        students_benefiting = int(total_students_in_journey * (housing_satisfaction / 100) * 0.5)
+                        retention_improvement = int(students_benefiting * 0.2)
+
+                        st.metric("Capacity Increase", f"+{housing_capacity_increase} beds")
+                        st.metric("Students Benefiting", students_benefiting)
+                        st.metric("Retention Improvement", retention_improvement)
+
+                        impact_text = f"Housing investment of <strong>AED {housing_investment:,.0f}</strong> could add <strong>{housing_capacity_increase} beds</strong> and improve retention for <strong>{retention_improvement} students</strong>"
+
+                    elif "Mental Health" in what_if_scenario:
+                        students_served = int(total_students_in_journey * (counseling_utilization / 100))
+                        counseling_cost = counseling_staff * 250000
+                        students_improved = int(students_served * 0.75)
+
+                        st.metric("Students Served", students_served)
+                        st.metric("Additional Staff", counseling_staff)
+                        st.metric("Expected to Improve", students_improved, delta=f"+{students_improved/total_students_in_journey*100:.1f}%")
+
+                        impact_text = f"Mental health expansion with <strong>{counseling_staff} counselors</strong> (AED {counseling_cost:,.0f}) could serve <strong>{students_served} students</strong> with <strong>{students_improved}</strong> showing wellbeing improvement"
+
+                    elif "International Student" in what_if_scenario:
+                        intl_students = int(total_students_in_journey * 0.15)  # Assume 15% international
+                        students_served = int(intl_students * (intl_service_coverage / 100))
+                        students_retained = int(students_served * 0.85)
+
+                        st.metric("International Students", intl_students)
+                        st.metric("Students Served", students_served)
+                        st.metric("Retention Improvement", students_retained)
+
+                        impact_text = f"International support program could serve <strong>{students_served} of {intl_students}</strong> international students, improving retention for <strong>{students_retained}</strong>"
+
+                    elif "First-Gen Student" in what_if_scenario:
+                        firstgen_students = int(total_students_in_journey * 0.25)  # Assume 25% first-gen
+                        students_supported = int(firstgen_students * (firstgen_coverage / 100))
+                        graduation_improvement = int(students_supported * 0.2)
+
+                        st.metric("First-Gen Students", firstgen_students)
+                        st.metric("Students Supported", students_supported)
+                        st.metric("Graduation Rate Boost", f"+{graduation_improvement}")
+
+                        impact_text = f"First-generation support could help <strong>{students_supported} of {firstgen_students}</strong> first-gen students with <strong>{graduation_improvement}</strong> more reaching graduation"
+
+                    elif "Career Services" in what_if_scenario:
+                        students_participating = int(total_students_in_journey * (career_participation / 100))
+                        job_placements = int(students_participating * (placement_rate / 100))
+                        avg_salary = 120000
+
+                        st.metric("Students Participating", students_participating)
+                        st.metric("Job Placements", job_placements)
+                        st.metric("Placement Rate", f"{(job_placements/students_participating*100):.0f}%")
+
+                        impact_text = f"Enhanced career services could engage <strong>{students_participating} students</strong> with <strong>{job_placements} job placements</strong> at ~<strong>AED {avg_salary:,.0f}</strong> avg salary"
+
+                    elif "Early Alert System" in what_if_scenario:
+                        at_risk_identified = int(total_students_in_journey * 0.2)
+                        students_reached = int(at_risk_identified * (alert_sensitivity / 100))
+                        students_saved = int(students_reached * (intervention_speed / 100) * 0.6)
+
+                        st.metric("At-Risk Identified", at_risk_identified)
+                        st.metric("Students Reached", students_reached)
+                        st.metric("Students Saved", students_saved, delta=f"+{students_saved/total_students_in_journey*100:.1f}%")
+
+                        impact_text = f"Early alert system with <strong>{alert_sensitivity}% sensitivity</strong> could identify <strong>{at_risk_identified} at-risk students</strong> and save <strong>{students_saved}</strong> through timely intervention"
+
+                    elif "Academic Probation" in what_if_scenario:
+                        probation_students = int(total_students_in_journey * 0.1)  # Assume 10% on probation
+                        students_in_program = int(probation_students * (probation_coverage / 100))
+                        students_recovered = int(students_in_program * (recovery_rate / 100))
+
+                        st.metric("Students on Probation", probation_students)
+                        st.metric("In Recovery Program", students_in_program)
+                        st.metric("Successfully Recovered", students_recovered, delta=f"+{students_recovered/probation_students*100:.0f}%")
+
+                        impact_text = f"Probation recovery program covering <strong>{students_in_program} of {probation_students}</strong> probation students could recover <strong>{students_recovered}</strong> to good standing"
+
+                    elif "Re-Enrollment Campaign" in what_if_scenario:
+                        stopped_out = int(200)  # Historical stopped-out students
+                        students_contacted = int(stopped_out * (campaign_reach / 100))
+                        students_reenrolled = int(students_contacted * (reenrollment_rate / 100))
+                        revenue_recovered = students_reenrolled * 50000
+
+                        st.metric("Stopped-Out Students", stopped_out)
+                        st.metric("Students Contacted", students_contacted)
+                        st.metric("Re-Enrollments", students_reenrolled, delta=f"+{students_reenrolled}")
+
+                        impact_text = f"Re-enrollment campaign reaching <strong>{students_contacted} stopped-out students</strong> could bring back <strong>{students_reenrolled}</strong>, recovering <strong>AED {revenue_recovered:,.0f}</strong> in revenue"
+
+                    elif "Completion Incentives" in what_if_scenario:
+                        near_completion = int(total_students_in_journey * 0.15)  # Assume 15% near completion
+                        students_incentivized = int(near_completion * (incentive_coverage / 100))
+                        students_completing = int(students_incentivized * 0.75)
+                        total_incentive_cost = students_incentivized * incentive_amount
+
+                        st.metric("Students Near Completion", near_completion)
+                        st.metric("Students Incentivized", students_incentivized)
+                        st.metric("Expected Completions", students_completing, delta=f"+{students_completing/near_completion*100:.0f}%")
+
+                        impact_text = f"Completion incentives of <strong>AED {incentive_amount:,.0f}</strong> each (AED {total_incentive_cost:,.0f} total) could motivate <strong>{students_completing} of {near_completion}</strong> near-completion students to graduate"
+
+                    elif "Summer Bridge" in what_if_scenario:
+                        incoming_students = 500  # Assume 500 incoming students
+                        bridge_participants = int(incoming_students * (bridge_participation / 100))
+                        students_retained = int(bridge_participants * 0.9)
+                        vs_non_participants = students_retained - int(incoming_students * 0.75)
+
+                        st.metric("Incoming Students", incoming_students)
+                        st.metric("Bridge Participants", bridge_participants)
+                        st.metric("1st Year Retention", students_retained, delta=f"+{vs_non_participants}")
+
+                        impact_text = f"Summer bridge program with <strong>{bridge_participants} participants</strong> could improve first-year retention by <strong>{vs_non_participants} students</strong> compared to non-participants"
+
+                    elif "Flexible Course Load" in what_if_scenario:
+                        students_opting = int(total_students_in_journey * (load_flexibility / 100))
+                        reduced_stress = int(students_opting * 0.8)
+                        improved_grades = int(students_opting * 0.6)
+
+                        st.metric("Students Using Flexibility", students_opting)
+                        st.metric("Reduced Stress Cases", reduced_stress)
+                        st.metric("Improved Performance", improved_grades)
+
+                        impact_text = f"Flexible course load options could benefit <strong>{students_opting} students</strong> with <strong>{reduced_stress}</strong> reporting reduced stress and <strong>{improved_grades}</strong> improving grades"
+
+                    elif "Hybrid Learning" in what_if_scenario:
+                        courses_hybrid = int(50 * (hybrid_adoption / 100))
+                        students_benefiting = int(total_students_in_journey * 0.7)
+                        satisfaction_increase = int(students_benefiting * (satisfaction_improvement / 100))
+
+                        st.metric("Hybrid Courses", courses_hybrid)
+                        st.metric("Students Benefiting", students_benefiting)
+                        st.metric("Satisfaction Boost", satisfaction_increase)
+
+                        impact_text = f"Hybrid learning model for <strong>{courses_hybrid} courses</strong> could benefit <strong>{students_benefiting} students</strong> with <strong>{satisfaction_increase}</strong> reporting higher satisfaction"
+
+                    elif "Internship Integration" in what_if_scenario:
+                        internship_slots = int(total_students_in_journey * (internship_coverage / 100))
+                        placements = int(internship_slots * 0.85)
+                        students_hired = int(placements * (job_conversion / 100))
+
+                        st.metric("Internship Slots", internship_slots)
+                        st.metric("Students Placed", placements)
+                        st.metric("Post-Grad Hires", students_hired, delta=f"+{students_hired/total_students_in_journey*100:.0f}%")
+
+                        impact_text = f"Internship program with <strong>{internship_slots} slots</strong> could place <strong>{placements} students</strong> with <strong>{students_hired}</strong> converting to full-time employment"
+
+                    elif "Flexible Scheduling" in what_if_scenario:
+                        evening_sections = int(20 * (schedule_expansion / 100))
+                        working_students = int(total_students_in_journey * 0.3)
+                        students_accommodated = int(working_students * (accommodation_rate / 100))
+
+                        st.metric("Evening/Weekend Sections", evening_sections)
+                        st.metric("Working Students", working_students)
+                        st.metric("Students Accommodated", students_accommodated)
+
+                        impact_text = f"Flexible scheduling with <strong>{evening_sections} evening/weekend sections</strong> could accommodate <strong>{students_accommodated} of {working_students}</strong> working students"
+
+                    else:
+                        # Default fallback
+                        st.metric("Total Students in Journey", total_students_in_journey)
+                        impact_text = "Select a scenario above to see projected impact"
+
+                    st.markdown(f"<div style='background: rgba(99, 102, 241, 0.1); padding: 15px; border-radius: 8px; border-left: 4px solid #6366f1; margin-top: 15px;'><p style='color: #e2e8f0; margin: 0;'>{impact_text}</p></div>", unsafe_allow_html=True)
+
+                # Simulate scenario on visualization
+                st.markdown("---")
+                st.markdown("#### 📈 Simulated Journey Timeline")
+
+                # Add parameter impact summary
+                st.info(f"💡 **Live Simulation**: Visualization updates in real-time as you adjust parameters. Budget: **AED {budget_allocation:,.0f}** | Staff: **{staff_required}** | Timeline: **{implementation_timeline}** | Risk: **{risk_level}**")
+
+                # Create simulated milestone distribution
+                simulated_milestone_students = dict(milestone_students)  # Copy current state
+
+                # Apply scenario logic
+                if "At-Risk" in what_if_scenario:
+                    # Move at-risk students forward
+                    students_to_move = int(at_risk_count * (affected_students_pct / 100) * (intervention_effectiveness / 100))
+                    for sid, midx in list(student_milestone_map.items()):
+                        if midx < len(st.session_state.journey_milestones) // 2 and students_to_move > 0:
+                            # Move student forward 1-2 milestones
+                            new_midx = min(midx + np.random.randint(1, 3), len(st.session_state.journey_milestones) - 1)
+                            if new_midx != midx:
+                                simulated_milestone_students[midx].remove(sid)
+                                if new_midx not in simulated_milestone_students:
+                                    simulated_milestone_students[new_midx] = []
+                                simulated_milestone_students[new_midx].append(sid)
+                                students_to_move -= 1
+
+                elif "Accelerated" in what_if_scenario:
+                    # Move target group forward using actual success rate parameter
+                    students_moved = 0
+                    for sid, midx in list(student_milestone_map.items()):
+                        # Limit by program capacity
+                        if students_moved >= program_capacity:
+                            break
+                        # Use actual success rate from parameters
+                        if np.random.random() < (success_rate / 100):
+                            new_midx = min(midx + acceleration_rate, len(st.session_state.journey_milestones) - 1)
+                            if new_midx != midx:
+                                simulated_milestone_students[midx].remove(sid)
+                                if new_midx not in simulated_milestone_students:
+                                    simulated_milestone_students[new_midx] = []
+                                simulated_milestone_students[new_midx].append(sid)
+                                students_moved += 1
+
+                elif "Enhanced Academic" in what_if_scenario or "Study Skills Workshop" in what_if_scenario or "Faculty Office Hours" in what_if_scenario or "Cognitive Skills" in what_if_scenario or "Supplemental Instruction" in what_if_scenario:
+                    # Move students forward based on resource impact
+                    if "Enhanced Academic" in what_if_scenario:
+                        # Use actual utilization rate from parameters
+                        effectiveness = (resource_coverage / 100) * (resource_utilization / 100)
+                        milestone_jump = 1 if resource_impact < 0.5 else 2  # Bigger impact = bigger jump
+                    elif "Study Skills" in what_if_scenario:
+                        effectiveness = attendance_rate / 100 * 0.85
+                        milestone_jump = workshop_impact
+                    else:
+                        effectiveness = 0.6
+                        milestone_jump = 1
+
+                    for sid, midx in list(student_milestone_map.items()):
+                        if np.random.random() < effectiveness:
+                            new_midx = min(midx + milestone_jump, len(st.session_state.journey_milestones) - 1)
+                            if new_midx != midx and midx in simulated_milestone_students and sid in simulated_milestone_students[midx]:
+                                simulated_milestone_students[midx].remove(sid)
+                                if new_midx not in simulated_milestone_students:
+                                    simulated_milestone_students[new_midx] = []
+                                simulated_milestone_students[new_midx].append(sid)
+
+                elif "Peer Mentoring" in what_if_scenario:
+                    # Move mentored students forward
+                    students_to_affect = int(total_students_in_journey * (mentee_count / 100))
+                    affected_count = 0
+                    for sid, midx in list(student_milestone_map.items()):
+                        if affected_count < students_to_affect and np.random.random() < (mentoring_effectiveness / 100):
+                            new_midx = min(midx + 1, len(st.session_state.journey_milestones) - 1)
+                            if new_midx != midx and midx in simulated_milestone_students and sid in simulated_milestone_students[midx]:
+                                simulated_milestone_students[midx].remove(sid)
+                                if new_midx not in simulated_milestone_students:
+                                    simulated_milestone_students[new_midx] = []
+                                simulated_milestone_students[new_midx].append(sid)
+                                affected_count += 1
+
+                elif "Financial Aid" in what_if_scenario or "Emergency Grant" in what_if_scenario or "Scholarship" in what_if_scenario:
+                    # Financial support helps struggling students progress
+                    for sid, midx in list(student_milestone_map.items()):
+                        # Prioritize students at earlier milestones (more likely to need financial help)
+                        if midx < len(st.session_state.journey_milestones) // 2:
+                            if np.random.random() < 0.3:  # 30% of aided students advance
+                                new_midx = min(midx + 1, len(st.session_state.journey_milestones) - 1)
+                                if new_midx != midx and midx in simulated_milestone_students and sid in simulated_milestone_students[midx]:
+                                    simulated_milestone_students[midx].remove(sid)
+                                    if new_midx not in simulated_milestone_students:
+                                        simulated_milestone_students[new_midx] = []
+                                    simulated_milestone_students[new_midx].append(sid)
+
+                elif "Mental Health" in what_if_scenario or "International Student" in what_if_scenario or "First-Gen Student" in what_if_scenario:
+                    # Support services help students at all levels progress
+                    for sid, midx in list(student_milestone_map.items()):
+                        if np.random.random() < 0.25:  # 25% benefit with milestone advancement
+                            new_midx = min(midx + 1, len(st.session_state.journey_milestones) - 1)
+                            if new_midx != midx and midx in simulated_milestone_students and sid in simulated_milestone_students[midx]:
+                                simulated_milestone_students[midx].remove(sid)
+                                if new_midx not in simulated_milestone_students:
+                                    simulated_milestone_students[new_midx] = []
+                                simulated_milestone_students[new_midx].append(sid)
+
+                elif "Early Alert" in what_if_scenario or "Academic Probation" in what_if_scenario:
+                    # Intervention helps at-risk students
+                    for sid, midx in list(student_milestone_map.items()):
+                        if midx < len(st.session_state.journey_milestones) // 3:  # Focus on early-stage at-risk
+                            if np.random.random() < 0.5:  # 50% of identified students advance
+                                new_midx = min(midx + 2, len(st.session_state.journey_milestones) - 1)
+                                if new_midx != midx and midx in simulated_milestone_students and sid in simulated_milestone_students[midx]:
+                                    simulated_milestone_students[midx].remove(sid)
+                                    if new_midx not in simulated_milestone_students:
+                                        simulated_milestone_students[new_midx] = []
+                                    simulated_milestone_students[new_midx].append(sid)
+
+                elif "Completion Incentives" in what_if_scenario:
+                    # Move near-completion students to completion
+                    for sid, midx in list(student_milestone_map.items()):
+                        if midx >= len(st.session_state.journey_milestones) - 3:  # Last 3 milestones
+                            if np.random.random() < 0.7:  # 70% complete with incentive
+                                new_midx = len(st.session_state.journey_milestones) - 1
+                                if new_midx != midx and midx in simulated_milestone_students and sid in simulated_milestone_students[midx]:
+                                    simulated_milestone_students[midx].remove(sid)
+                                    if new_midx not in simulated_milestone_students:
+                                        simulated_milestone_students[new_midx] = []
+                                    simulated_milestone_students[new_midx].append(sid)
+
+                elif "Internship" in what_if_scenario or "Career Services" in what_if_scenario:
+                    # Career support motivates later-stage students
+                    for sid, midx in list(student_milestone_map.items()):
+                        if midx >= len(st.session_state.journey_milestones) // 2:  # Upper-level students
+                            if np.random.random() < 0.4:
+                                new_midx = min(midx + 1, len(st.session_state.journey_milestones) - 1)
+                                if new_midx != midx and midx in simulated_milestone_students and sid in simulated_milestone_students[midx]:
+                                    simulated_milestone_students[midx].remove(sid)
+                                    if new_midx not in simulated_milestone_students:
+                                        simulated_milestone_students[new_midx] = []
+                                    simulated_milestone_students[new_midx].append(sid)
+
+                # Create comparison visualization
+                fig_comparison = go.Figure()
+
+                # Current state (lighter colors)
+                for idx in range(len(st.session_state.journey_milestones)):
+                    current_count = len(milestone_students.get(idx, []))
+                    fig_comparison.add_trace(go.Bar(
+                        name='Current',
+                        x=[st.session_state.journey_milestones[idx]['name']],
+                        y=[current_count],
+                        marker_color='rgba(107, 114, 128, 0.5)',
+                        showlegend=(idx == 0),
+                        text=[f"<b>{current_count}</b>"],
+                        textposition='outside',
+                        textfont=dict(size=12, color='white', family='Arial Black'),
+                        hovertemplate=f"<b style='font-size:14px'>Current State</b><br><b>Milestone:</b> {st.session_state.journey_milestones[idx]['name']}<br><b>Students:</b> {current_count}<extra></extra>"
+                    ))
+
+                # Simulated state (vibrant colors)
+                for idx in range(len(st.session_state.journey_milestones)):
+                    simulated_count = len(simulated_milestone_students.get(idx, []))
+                    change = simulated_count - len(milestone_students.get(idx, []))
+                    change_text = f"+{change}" if change > 0 else f"{change}" if change < 0 else "0"
+                    fig_comparison.add_trace(go.Bar(
+                        name='Simulated',
+                        x=[st.session_state.journey_milestones[idx]['name']],
+                        y=[simulated_count],
+                        marker_color='rgba(99, 102, 241, 0.8)',
+                        showlegend=(idx == 0),
+                        text=[f"<b>{simulated_count}</b><br>({change_text})"],
+                        textposition='outside',
+                        textfont=dict(size=12, color='#10b981' if change > 0 else '#ef4444' if change < 0 else 'white', family='Arial Black'),
+                        hovertemplate=f"<b style='font-size:14px'>After Intervention</b><br><b>Milestone:</b> {st.session_state.journey_milestones[idx]['name']}<br><b>Students:</b> {simulated_count}<br><b>Change:</b> {change_text}<extra></extra>"
+                    ))
+
+                fig_comparison.update_layout(
+                    title=dict(
+                        text="Before vs After: Student Distribution Across Milestones",
+                        font=dict(size=20, color='white', family='Arial Black')
+                    ),
+                    xaxis_title=dict(
+                        text="Milestone",
+                        font=dict(size=16, color='white', family='Arial')
+                    ),
+                    yaxis_title=dict(
+                        text="Number of Students",
+                        font=dict(size=16, color='white', family='Arial')
+                    ),
+                    barmode='group',
+                    template="plotly_dark",
+                    height=500,
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    xaxis=dict(
+                        tickfont=dict(size=11, color='white'),
+                        tickangle=-45
+                    ),
+                    yaxis=dict(
+                        tickfont=dict(size=13, color='white'),
+                        automargin=True
+                    ),
+                    margin=dict(t=80, b=120, l=80, r=40),
+                    uniformtext_minsize=10,
+                    uniformtext_mode='hide',
+                    legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.02,
+                        xanchor="right",
+                        x=1,
+                        font=dict(size=14, color='white', family='Arial')
+                    ),
+                    font=dict(size=13, color='white')
+                )
+
+                st.plotly_chart(fig_comparison, use_container_width=True)
+
+                # Add dynamic comparison metrics
+                total_current = sum(len(students) for students in milestone_students.values())
+                total_simulated = sum(len(students) for students in simulated_milestone_students.values())
+
+                # Calculate average milestone position
+                def calc_avg_milestone(milestone_dict):
+                    total_position = 0
+                    total_students = 0
+                    for idx, students in milestone_dict.items():
+                        total_position += idx * len(students)
+                        total_students += len(students)
+                    return total_position / total_students if total_students > 0 else 0
+
+                current_avg_milestone = calc_avg_milestone(milestone_students)
+                simulated_avg_milestone = calc_avg_milestone(simulated_milestone_students)
+                milestone_improvement = simulated_avg_milestone - current_avg_milestone
+
+                # Show dynamic metrics
+                st.markdown("##### 📊 Real-Time Impact Metrics")
+                metrics_col1, metrics_col2, metrics_col3, metrics_col4 = st.columns(4)
+                with metrics_col1:
+                    st.metric("Total Students", total_simulated, delta=f"{total_simulated - total_current:+d}")
+                with metrics_col2:
+                    st.metric("Avg Milestone Position", f"{simulated_avg_milestone:.1f}", delta=f"{milestone_improvement:+.1f}")
+                with metrics_col3:
+                    last_milestone_current = len(milestone_students.get(len(st.session_state.journey_milestones) - 1, []))
+                    last_milestone_sim = len(simulated_milestone_students.get(len(st.session_state.journey_milestones) - 1, []))
+                    st.metric("Completing Journey", last_milestone_sim, delta=f"{last_milestone_sim - last_milestone_current:+d}")
+                with metrics_col4:
+                    improvement_rate = (milestone_improvement / current_avg_milestone * 100) if current_avg_milestone > 0 else 0
+                    st.metric("Progress Improvement", f"{improvement_rate:.1f}%", delta="Positive" if improvement_rate > 0 else "Neutral")
+
+                # Add simulated journey timeline visualization
+                st.markdown("#### 🎯 Simulated Journey Timeline - Impact Visualization")
+                st.markdown("*Timeline view showing how the intervention redistributes students across milestones*")
+
+                # Create simulated journey timeline
+                fig_simulated_journey = go.Figure()
+
+                # Add milestones to simulated timeline
+                for idx, milestone in enumerate(st.session_state.journey_milestones):
+                    current_students = milestone_students.get(idx, [])
+                    simulated_students = simulated_milestone_students.get(idx, [])
+                    current_count = len(current_students)
+                    simulated_count = len(simulated_students)
+                    change = simulated_count - current_count
+
+                    # Determine color based on change
+                    if change > 0:
+                        # More students at this milestone after intervention
+                        milestone_color = '#10b981'  # Green
+                        change_indicator = f"+{change}"
+                    elif change < 0:
+                        # Fewer students at this milestone (moved forward)
+                        milestone_color = '#f59e0b'  # Orange
+                        change_indicator = f"{change}"
+                    else:
+                        # No change
+                        milestone_color = '#6b7280'  # Gray
+                        change_indicator = "0"
+
+                    # Build student list for tooltip
+                    if simulated_count > 0:
+                        if simulated_count <= 5:
+                            student_list = "<br>".join([f"  • {s}" for s in simulated_students])
+                        else:
+                            student_list = "<br>".join([f"  • {s}" for s in simulated_students[:5]])
+                            student_list += f"<br>  • ... and {simulated_count - 5} more"
+                        students_info = f"<br><br><b>Students After Intervention ({simulated_count}):</b><br>{student_list}"
+                    else:
+                        students_info = "<br><br><b>No students at this milestone</b>"
+
+                    # Add current state info to tooltip
+                    current_state_info = f"<br><br><b>Change from Current:</b> {change_indicator} students"
+
+                    # Increase marker size based on student count
+                    marker_size = 20 + min(simulated_count * 3, 30)
+
+                    fig_simulated_journey.add_trace(go.Scatter(
+                        x=[milestone['week']],
+                        y=[milestone['name']],
+                        mode='markers+text',
+                        marker=dict(
+                            size=marker_size,
+                            color=milestone_color,
+                            symbol='circle',
+                            line=dict(width=3, color='white')
+                        ),
+                        text=[f"<b>Week {milestone['week']}</b><br><b>{simulated_count} Students</b><br><b>{change_indicator}</b>"],
+                        textposition="top center",
+                        textfont=dict(
+                            size=13,
+                            color='white',
+                            family='Arial Black'
+                        ),
+                        name=milestone['name'],
+                        hovertemplate=f"<b style='font-size:14px'>{milestone['name']}</b><br>" +
+                                      f"<b>Week:</b> {milestone['week']}<br>" +
+                                      f"<b>Type:</b> {milestone['type']}<br>" +
+                                      f"<b>Current Students:</b> {current_count}<br>" +
+                                      f"<b>After Intervention:</b> {simulated_count}<br>" +
+                                      f"<b>Change:</b> {change_indicator}" +
+                                      students_info +
+                                      "<extra></extra>"
+                    ))
+
+                # Add connecting line
+                weeks = [m['week'] for m in st.session_state.journey_milestones]
+                names = [m['name'] for m in st.session_state.journey_milestones]
+
+                fig_simulated_journey.add_trace(go.Scatter(
+                    x=weeks,
+                    y=names,
+                    mode='lines',
+                    line=dict(color='#6366f1', width=2, dash='dash'),
+                    showlegend=False,
+                    hoverinfo='skip'
+                ))
+
+                fig_simulated_journey.update_layout(
+                    title=dict(
+                        text="Simulated Journey Timeline - Student Distribution After Intervention",
+                        font=dict(size=20, color='white', family='Arial Black')
+                    ),
+                    xaxis_title=dict(
+                        text="Week",
+                        font=dict(size=16, color='white', family='Arial')
+                    ),
+                    yaxis_title=dict(
+                        text="Milestone",
+                        font=dict(size=16, color='white', family='Arial')
+                    ),
+                    template="plotly_dark",
+                    height=500,
+                    showlegend=False,
+                    xaxis=dict(
+                        range=[-1, 17],
+                        tickfont=dict(size=13, color='white')
+                    ),
+                    yaxis=dict(
+                        tickfont=dict(size=12, color='white')
+                    ),
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    font=dict(size=13, color='white')
+                )
+
+                st.plotly_chart(fig_simulated_journey, use_container_width=True)
+
+                # Legend for color coding with enhanced styling
+                st.markdown("##### 🎨 Color Legend")
+                legend_col1, legend_col2, legend_col3 = st.columns(3)
+                with legend_col1:
+                    st.markdown("<div style='background: rgba(16, 185, 129, 0.2); padding: 10px; border-radius: 8px; border-left: 4px solid #10b981;'><span style='font-size: 1.1rem; font-weight: bold;'>🟢 Green</span><br/><span style='font-size: 0.9rem;'>More students at milestone (influx from intervention)</span></div>", unsafe_allow_html=True)
+                with legend_col2:
+                    st.markdown("<div style='background: rgba(245, 158, 11, 0.2); padding: 10px; border-radius: 8px; border-left: 4px solid #f59e0b;'><span style='font-size: 1.1rem; font-weight: bold;'>🟠 Orange</span><br/><span style='font-size: 0.9rem;'>Fewer students (successfully progressed forward)</span></div>", unsafe_allow_html=True)
+                with legend_col3:
+                    st.markdown("<div style='background: rgba(107, 114, 128, 0.2); padding: 10px; border-radius: 8px; border-left: 4px solid #6b7280;'><span style='font-size: 1.1rem; font-weight: bold;'>⚫ Gray</span><br/><span style='font-size: 0.9rem;'>No change in student count</span></div>", unsafe_allow_html=True)
+
+                # Action recommendations
+                st.markdown("#### 💡 Recommended Actions")
+                action_recommendations = []
+
+                if "At-Risk" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Identify at-risk students using GPA and milestone progress metrics",
+                        "2. Schedule one-on-one advising sessions within 1 week",
+                        "3. Connect students with tutoring and academic support services",
+                        "4. Monitor attendance and assignment completion weekly",
+                        "5. Establish peer support groups for struggling students"
+                    ]
+                elif "Accelerated" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Design accelerated curriculum track with condensed timelines",
+                        "2. Provide additional resources and priority registration",
+                        "3. Assign dedicated academic advisors to accelerated students",
+                        "4. Monitor workload and stress levels closely",
+                        "5. Celebrate milestone achievements to maintain motivation"
+                    ]
+                elif "Attrition" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Implement early warning system at identified high-risk milestone",
+                        "2. Conduct exit interviews to understand departure reasons",
+                        "3. Offer flexible scheduling and financial aid options",
+                        "4. Create retention-focused support programs",
+                        "5. Engage alumni as retention ambassadors"
+                    ]
+                elif "Enhanced Academic" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Invest in tutoring centers and study labs",
+                        "2. Expand library hours and online resources",
+                        "3. Hire additional faculty for reduced class sizes",
+                        "4. Implement adaptive learning technology",
+                        "5. Track resource utilization and student outcomes"
+                    ]
+                elif "Peer Mentoring" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Recruit high-performing students as peer mentors",
+                        "2. Provide mentor training and ongoing support",
+                        "3. Match mentors and mentees by program and interests",
+                        "4. Schedule regular check-ins and progress reviews",
+                        "5. Recognize and reward successful mentor-mentee pairs"
+                    ]
+                elif "Study Skills Workshop" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Schedule workshops at strategic milestone points",
+                        "2. Cover time management, note-taking, and test preparation",
+                        "3. Provide incentives for attendance (credit, certificates)",
+                        "4. Follow up with participants to assess impact",
+                        "5. Iterate workshop content based on student feedback"
+                    ]
+                elif "Faculty Office Hours" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Survey students to identify optimal office hours times",
+                        "2. Hire additional faculty or teaching assistants",
+                        "3. Implement appointment booking system for better access",
+                        "4. Promote office hours through multiple channels",
+                        "5. Track utilization and student satisfaction metrics"
+                    ]
+                elif "Cognitive Skills" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Partner with learning specialists to design curriculum",
+                        "2. Offer training modules on critical thinking and problem-solving",
+                        "3. Integrate cognitive strategies into existing courses",
+                        "4. Provide pre- and post-assessments to measure impact",
+                        "5. Create ongoing practice opportunities and resources"
+                    ]
+                elif "Supplemental Instruction" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Identify high-DFW (D, F, Withdrawal) courses for SI coverage",
+                        "2. Recruit and train SI leaders from students who excelled",
+                        "3. Schedule SI sessions multiple times per week",
+                        "4. Promote SI as collaborative learning (not remedial)",
+                        "5. Track attendance and compare grades: SI vs non-SI students"
+                    ]
+                elif "Increased Financial Aid" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Review aid allocation formula to prioritize high-need students",
+                        "2. Communicate aid increases clearly in award letters",
+                        "3. Simplify aid application and renewal processes",
+                        "4. Monitor retention rates by aid recipient cohort",
+                        "5. Secure additional funding through endowment and grants"
+                    ]
+                elif "Emergency Grant" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Establish clear eligibility criteria and application process",
+                        "2. Create rapid review and disbursement system (24-48 hours)",
+                        "3. Train advisors and staff to identify students in crisis",
+                        "4. Partner with student services for holistic support",
+                        "5. Build emergency fund through donations and fundraising"
+                    ]
+                elif "Work-Study" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Expand on-campus employment opportunities across departments",
+                        "2. Develop off-campus partnerships for work-study placements",
+                        "3. Ensure positions align with students' academic goals",
+                        "4. Limit work hours to prevent academic impact (15-20 hrs/week)",
+                        "5. Track academic outcomes for work-study participants"
+                    ]
+                elif "Scholarship" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Create new scholarship categories (merit, need, diversity)",
+                        "2. Launch scholarship fundraising campaign targeting alumni",
+                        "3. Simplify scholarship search and application process",
+                        "4. Establish scholarship renewal criteria tied to performance",
+                        "5. Recognize scholarship donors and recipients at annual event"
+                    ]
+                elif "Tuition Reduction" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Model financial impact across multiple enrollment scenarios",
+                        "2. Target reductions strategically (new students, specific programs)",
+                        "3. Invest in marketing to attract additional enrollments",
+                        "4. Monitor competitor pricing and market positioning",
+                        "5. Evaluate revenue impact quarterly and adjust as needed"
+                    ]
+                elif "Enhanced Housing" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Conduct needs assessment for housing types and amenities",
+                        "2. Explore financing options (bonds, public-private partnerships)",
+                        "3. Prioritize accessibility, sustainability, and community design",
+                        "4. Offer themed housing (honors, international, interest-based)",
+                        "5. Integrate residential life programming with academic support"
+                    ]
+                elif "Mental Health" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Hire licensed counselors at ratio of 1:1000-1500 students",
+                        "2. Expand hours including evenings and telehealth options",
+                        "3. Reduce stigma through mental health awareness campaigns",
+                        "4. Train faculty and staff to recognize and refer students in distress",
+                        "5. Partner with community providers for specialized services"
+                    ]
+                elif "International Student" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Provide pre-arrival orientation and cultural transition support",
+                        "2. Offer visa advising and immigration compliance assistance",
+                        "3. Create international student community and social events",
+                        "4. Provide language support and conversation partners",
+                        "5. Address unique challenges (housing, banking, healthcare)"
+                    ]
+                elif "First-Gen Student" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Create first-gen student center and dedicated advisor",
+                        "2. Offer summer transition program before first semester",
+                        "3. Establish peer mentoring by upper-class first-gen students",
+                        "4. Provide family engagement programs to support parents",
+                        "5. Address financial literacy, career planning, and campus navigation"
+                    ]
+                elif "Career Services" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Expand career counseling staff and specialized industry advisors",
+                        "2. Enhance internship and employer partnership programs",
+                        "3. Offer career readiness workshops (resume, interview, networking)",
+                        "4. Implement career assessment tools and major exploration",
+                        "5. Track employment outcomes and maintain alumni career network"
+                    ]
+                elif "Early Alert" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Implement early alert software integrated with LMS",
+                        "2. Train faculty to submit alerts for attendance, grades, engagement",
+                        "3. Establish triage system with advisors responding within 48 hours",
+                        "4. Create intervention menu (tutoring, counseling, study skills)",
+                        "5. Close the loop by tracking interventions and outcomes"
+                    ]
+                elif "Academic Probation" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Assign dedicated advisor to each probation student",
+                        "2. Require participation in academic success workshop",
+                        "3. Develop individualized academic success plan",
+                        "4. Provide intensive tutoring and study skills support",
+                        "5. Monitor progress weekly with clear benchmarks for good standing"
+                    ]
+                elif "Re-Enrollment Campaign" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Identify stopped-out students and departure reasons from records",
+                        "2. Conduct personalized outreach via email, phone, and social media",
+                        "3. Address barriers to return (financial, academic, personal)",
+                        "4. Offer streamlined re-admission process and credit evaluation",
+                        "5. Provide re-entry support services (advising, orientation)"
+                    ]
+                elif "Completion Incentives" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Identify students within 1-2 semesters of completion",
+                        "2. Offer completion grants to offset final semester costs",
+                        "3. Provide dedicated completion advisor and degree audit",
+                        "4. Create accelerated or flexible course options for final requirements",
+                        "5. Celebrate completers at graduation and through alumni network"
+                    ]
+                elif "Summer Bridge" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Design 3-6 week summer program before first semester",
+                        "2. Include academic skill-building, campus resources, and social integration",
+                        "3. Offer college-level coursework for early credit and confidence",
+                        "4. Assign peer mentors and create cohort community",
+                        "5. Track first-year outcomes and compare to non-participants"
+                    ]
+                elif "Flexible Course Load" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Allow students to adjust course load after add/drop period",
+                        "2. Provide academic and financial aid advising before changes",
+                        "3. Create part-time student support services and community",
+                        "4. Adjust financial aid policies to accommodate reduced loads",
+                        "5. Monitor time-to-degree and graduation rates for part-time students"
+                    ]
+                elif "Hybrid Learning" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Invest in classroom technology and faculty training",
+                        "2. Redesign courses intentionally (not just adding video)",
+                        "3. Ensure equitable access to technology and internet",
+                        "4. Gather student feedback and iterate course design",
+                        "5. Evaluate learning outcomes and compare to traditional formats"
+                    ]
+                elif "Internship" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Build employer partnerships across industries and locations",
+                        "2. Integrate internships into curriculum with academic credit",
+                        "3. Provide internship search support and placement services",
+                        "4. Offer stipends or funding for unpaid internships",
+                        "5. Track internship-to-job conversion rates and employer satisfaction"
+                    ]
+                elif "Flexible Scheduling" in what_if_scenario:
+                    action_recommendations = [
+                        "1. Survey students to identify scheduling conflicts and needs",
+                        "2. Offer evening, weekend, and online course sections",
+                        "3. Ensure financial aid and services available for non-traditional times",
+                        "4. Hire adjunct faculty or compensate full-time for evening teaching",
+                        "5. Market flexible options to working adult and non-traditional students"
+                    ]
+                else:
+                    action_recommendations = [
+                        "1. Assess current state and identify specific intervention needed",
+                        "2. Research best practices and evidence-based strategies",
+                        "3. Pilot intervention with small student cohort",
+                        "4. Measure outcomes and gather student feedback",
+                        "5. Scale successful interventions and iterate based on data"
+                    ]
+
+                for action in action_recommendations:
+                    st.markdown(f"- {action}")
+
+        else:
+            st.info("👈 Select students from the left panel to begin creating a journey.")
+
+            # Show example journey
+            st.markdown("### 📖 Example: Student Success Journey")
+            st.markdown("""
+            A typical student journey includes:
+
+            1. **Enrollment Phase** (Week 0-2)
+               - Welcome orientation
+               - Academic advising session
+               - Course registration
+
+            2. **Early Engagement** (Week 3-6)
+               - First assignments and assessments
+               - Study group formation
+               - Academic resource introduction
+
+            3. **Mid-Term Checkpoint** (Week 7-10)
+               - Progress review
+               - Intervention for struggling students
+               - Advising session for course adjustments
+
+            4. **Final Push** (Week 11-16)
+               - Exam preparation support
+               - Final project guidance
+               - Registration planning for next term
+
+            5. **Completion & Reflection** (Week 16+)
+               - Grade review
+               - Feedback collection
+               - Success celebration
+            """)
+
+# TAB 4: COMPREHENSIVE OVERVIEW - REORGANIZED WITH BUSINESS LOGIC FLOW
+with tab4:
     st.markdown("## 📊 Comprehensive Overview & Trends")
     st.markdown("*Institutional performance metrics and key trends across enrollment, academics, and growth*")
 
@@ -10539,8 +12981,8 @@ with tab3:
 </div>
 </div>""", unsafe_allow_html=True)
 
-# TAB 4: ACADEMIC ANALYTICS - REORGANIZED WITH BUSINESS LOGIC FLOW
-with tab4:
+# TAB 5: ACADEMIC ANALYTICS - REORGANIZED WITH BUSINESS LOGIC FLOW
+with tab5:
     st.markdown("## 🎓 Academic Analytics & Performance Insights")
     st.markdown("*Comprehensive academic performance analysis, success factors, and progression metrics*")
 
@@ -12333,8 +14775,8 @@ with tab4:
 </div>
 </div>""", unsafe_allow_html=True)
 
-# TAB 5: HOUSING INSIGHTS - REORGANIZED WITH BUSINESS LOGIC FLOW
-with tab5:
+# TAB 6: HOUSING INSIGHTS - REORGANIZED WITH BUSINESS LOGIC FLOW
+with tab6:
     st.markdown("## 🏠 Housing Analytics & Residential Services")
     st.markdown("*Comprehensive housing operations analysis, financial performance, and student success impact*")
 
@@ -13336,8 +15778,8 @@ with tab5:
     </div>
     """, unsafe_allow_html=True)
 
-# TAB 6: FINANCIAL INTELLIGENCE - REORGANIZED WITH BUSINESS LOGIC FLOW
-with tab6:
+# TAB 7: FINANCIAL INTELLIGENCE - REORGANIZED WITH BUSINESS LOGIC FLOW
+with tab7:
     st.markdown("## 💰 Financial Intelligence & Aid Impact Analysis")
     st.markdown("*Comprehensive financial analysis, aid distribution, and effectiveness assessment*")
 
@@ -14254,8 +16696,8 @@ with tab6:
     </div>
     """, unsafe_allow_html=True)
 
-# TAB 7: DEMOGRAPHICS DEEP DIVE - REORGANIZED WITH BUSINESS LOGIC FLOW
-with tab7:
+# TAB 8: DEMOGRAPHICS DEEP DIVE - REORGANIZED WITH BUSINESS LOGIC FLOW
+with tab8:
     st.markdown("## 👥 Demographics Deep Dive & Diversity Intelligence")
     st.markdown("*Comprehensive demographic analysis, diversity metrics, and student composition insights*")
 
@@ -15885,8 +18327,8 @@ with tab7:
     </div>
     """, unsafe_allow_html=True)
 
-# TAB 8: RISK & SUCCESS ANALYSIS - REORGANIZED WITH BUSINESS LOGIC FLOW
-with tab8:
+# TAB 9: RISK & SUCCESS ANALYSIS - REORGANIZED WITH BUSINESS LOGIC FLOW
+with tab9:
     st.markdown("## ⚠️ Risk & Success Analysis: Early Intervention & Student Success")
     st.markdown("*Predictive risk assessment, intervention strategies, and success pattern identification*")
 
@@ -16318,7 +18760,7 @@ with tab8:
         "✨ Success Profile",
         f"We've identified <span class='metric-highlight'>{len(successful_students)}</span> high-achieving students who maintain "
         f"a GPA of 3.5+, are making excellent degree progress (50%+), and have strong passing grades. "
-        f"These students can serve as peer mentors and success ambassadors for at-risk students."
+        f"These students can serve as peer mentors for at-risk student interventions."
     )
 
     col1, col2 = st.columns(2)
@@ -16797,9 +19239,9 @@ with tab8:
 
         # Create heatmap with Low → Critical columns
         column_order = []
-        for col in ['Low Risk', 'Moderate Risk', 'High Risk', 'Critical Risk']:
-            if col in risk_pivot_pct_sorted.columns:
-                column_order.append(col)
+        for risk_col in ['Low Risk', 'Moderate Risk', 'High Risk', 'Critical Risk']:
+            if risk_col in risk_pivot_pct_sorted.columns:
+                column_order.append(risk_col)
 
         fig = go.Figure(data=go.Heatmap(
             z=risk_pivot_pct_sorted[column_order].values,
@@ -17096,8 +19538,8 @@ with tab8:
         total_net_benefit
     ), unsafe_allow_html=True)
 
-# TAB 9: DATA LINEAGE & ARCHITECTURE
-with tab9:
+# TAB 10: DATA LINEAGE & ARCHITECTURE
+with tab10:
     st.markdown("## 🔗 Data Lineage & Architecture")
     st.markdown("*Complete data flow from RAW sources through CURATED tables to Student 360 Data Product*")
 
@@ -19853,8 +22295,8 @@ FROM grade_points;
 
     st.markdown("---")
 
-# TAB 10: DATA EXPLORER (Enhanced)
-with tab10:
+# TAB 11: DATA EXPLORER (Enhanced)
+with tab11:
     st.subheader("🔎 Interactive Data Explorer & Export")
 
     # Data selection

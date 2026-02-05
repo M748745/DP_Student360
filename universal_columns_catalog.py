@@ -169,6 +169,15 @@ UNIVERSAL_COLUMNS_CATALOG = {
         used_for=["full_name_construction"]
     ),
 
+    "full_name": ColumnDefinition(
+        name="full_name",
+        category=ColumnCategory.PERSONAL_INFO,
+        data_type=DataType.STRING,
+        description="Student full name (combined first, middle, last)",
+        aliases=["fullname", "name", "student_name", "complete_name"],
+        used_for=["display", "student_identification", "communications"]
+    ),
+
     "email_address": ColumnDefinition(
         name="email_address",
         category=ColumnCategory.PERSONAL_INFO,

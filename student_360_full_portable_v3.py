@@ -9343,6 +9343,31 @@ with tab3:
     </div>
     """, unsafe_allow_html=True)
 
+    # Check if data is loaded and filtered_df is available
+    if len(filtered_df) == 0:
+        st.warning("⚠️ **No students match the current filters**")
+        st.info("""
+        **The sidebar filters have excluded all students.**
+
+        Please adjust your filters:
+        - Check Enrollment Status (try selecting "Active")
+        - Check Cohort Year filter
+        - Check Nationality filter
+        - Check Gender filter
+        - Reset filters to see all students
+        """)
+
+        # Show debug info
+        with st.expander("🔍 Debug Information"):
+            st.write(f"**Total records in original dataset:** {len(df):,}")
+            st.write(f"**Records after filtering:** {len(filtered_df):,}")
+            st.write("**Active Filters:**")
+            if 'enrollment_status' in locals():
+                st.write(f"- Enrollment Status: {enrollment_status}")
+            if 'cohort_years' in locals():
+                st.write(f"- Cohort Years: {cohort_years}")
+        st.stop()
+
     # Create two columns for the main interface
     left_column, right_column = st.columns([1, 2])
 
@@ -9361,7 +9386,31 @@ with tab3:
         if selection_method == "By Student ID":
             # Get list of all student IDs
             student_id_col = col_func('STUDENT_ID')
+
+            # Debug information
+            with st.expander("🔍 Debug: Column Information", expanded=False):
+                st.write(f"**CATALOG_AVAILABLE:** {CATALOG_AVAILABLE}")
+                st.write(f"**Looking for column:** 'STUDENT_ID'")
+                st.write(f"**Mapped to column:** '{student_id_col}'")
+                st.write(f"**Available columns in filtered_df:** {list(filtered_df.columns)[:10]}... (showing first 10)")
+                st.write(f"**Total columns:** {len(filtered_df.columns)}")
+                st.write(f"**Column exists in dataframe:** {student_id_col in filtered_df.columns}")
+                st.write(f"**Records in filtered_df:** {len(filtered_df):,}")
+                if student_id_col in filtered_df.columns:
+                    st.write(f"**Unique student IDs:** {filtered_df[student_id_col].nunique():,}")
+                    st.write(f"**Sample IDs:** {filtered_df[student_id_col].head(5).tolist()}")
+
             all_student_ids = filtered_df[student_id_col].unique().tolist() if student_id_col in filtered_df.columns else []
+
+            # Show available count
+            if len(all_student_ids) == 0:
+                st.error(f"❌ No student IDs found!")
+                if student_id_col not in filtered_df.columns:
+                    st.warning(f"⚠️ Column '{student_id_col}' not found in the data. Check the Debug section above.")
+                else:
+                    st.warning("⚠️ The column exists but has no data. Check your sidebar filters.")
+            else:
+                st.caption(f"📊 {len(all_student_ids):,} students available based on current filters")
 
             # Multi-select for student IDs
             selected_ids = st.multiselect(

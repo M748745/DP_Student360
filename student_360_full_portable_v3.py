@@ -13930,13 +13930,19 @@ with tab5:
     with col2:
         avg_credits_by_progress = filtered_df.groupby(pd.cut(filtered_df['degree_progress_pct'], bins=[0, 25, 50, 75, 100]))['credits_attempted'].mean()
 
+        # Safely get values with defaults for missing buckets
+        early_credits = avg_credits_by_progress.iloc[0] if len(avg_credits_by_progress) > 0 else 0
+        mid_credits = avg_credits_by_progress.iloc[1] if len(avg_credits_by_progress) > 1 else 0
+        advanced_credits = avg_credits_by_progress.iloc[2] if len(avg_credits_by_progress) > 2 else 0
+        near_completion_credits = avg_credits_by_progress.iloc[3] if len(avg_credits_by_progress) > 3 else 0
+
         st.markdown(f"""
         <div class="insight-card">
             <h4 style="color: #6366f1;">📖 Average Credits by Stage</h4>
-            <p style="color: #e2e8f0;"><b>Early Stage:</b> {avg_credits_by_progress.iloc[0]:.1f} credits</p>
-            <p style="color: #e2e8f0;"><b>Mid Stage:</b> {avg_credits_by_progress.iloc[1]:.1f} credits</p>
-            <p style="color: #e2e8f0;"><b>Advanced:</b> {avg_credits_by_progress.iloc[2]:.1f} credits</p>
-            <p style="color: #e2e8f0;"><b>Near Completion:</b> {avg_credits_by_progress.iloc[3]:.1f} credits</p>
+            <p style="color: #e2e8f0;"><b>Early Stage:</b> {early_credits:.1f} credits</p>
+            <p style="color: #e2e8f0;"><b>Mid Stage:</b> {mid_credits:.1f} credits</p>
+            <p style="color: #e2e8f0;"><b>Advanced:</b> {advanced_credits:.1f} credits</p>
+            <p style="color: #e2e8f0;"><b>Near Completion:</b> {near_completion_credits:.1f} credits</p>
         </div>
         """, unsafe_allow_html=True)
 
